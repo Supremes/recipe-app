@@ -166,11 +166,22 @@ def reorder_categories():
     return jsonify({'message':'排序已更新'})
 
 # ══════════ RECIPES ══════════
+@app.route('/api/sub_categories')
+def get_sub_categories():
+    db = get_db(); cat = request.args.get('category','')
+    sql = 'SELECT DISTINCT sub_category FROM recipes WHERE sub_category!=""'; params = []
+    if cat and cat != 'all': sql += ' AND category_id=?'; params.append(cat)
+    sql += ' ORDER BY sub_category'
+    rows = [r['sub_category'] for r in db.execute(sql,params).fetchall()]
+    db.close()
+    return jsonify(rows)
+
 @app.route('/api/recipes')
 def get_recipes():
-    db = get_db(); cat = request.args.get('category',''); q = request.args.get('search','')
+    db = get_db(); cat = request.args.get('category',''); q = request.args.get('search',''); sub = request.args.get('sub','')
     sql = 'SELECT * FROM recipes WHERE 1=1'; params = []
     if cat and cat != 'all': sql += ' AND category_id=?'; params.append(cat)
+    if sub: sql += ' AND sub_category=?'; params.append(sub)
     if q: sql += ' AND (title LIKE ? OR description LIKE ? OR ingredients LIKE ?)'; s=f'%{q}%'; params.extend([s,s,s])
     sql += ' ORDER BY updated_at DESC'
     rows = db.execute(sql,params).fetchall()
@@ -201,10 +212,10 @@ def create_recipe():
     if not title: return jsonify({'error':'菜名不能为空'}),400
     auto_gen = request.form.get('auto_generate','') == 'true'
     ingredients_str = request.form.get('ingredients','[]')
-    db.execute('''INSERT INTO recipes(id,title,category_id,description,ingredients,steps,
+    db.execute('''INSERT INTO recipes(id,title,category_id,sub_category,description,ingredients,steps,
         difficulty,cook_time,servings,image,tags,monthly_sales,created_at,updated_at)
-        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',
-        (rid,title,request.form.get('category_id',''),request.form.get('description',''),
+        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',
+        (rid,title,request.form.get('category_id',''),request.form.get('sub_category',''),request.form.get('description',''),
          ingredients_str,request.form.get('steps','[]'),
          request.form.get('difficulty','简单'),request.form.get('cook_time',''),
          request.form.get('servings',''),img,request.form.get('tags','[]'),0,now,now))
@@ -260,9 +271,10 @@ def update_recipe(rid):
         img = ''
     title = request.form.get('title','').strip()
     if not title: return jsonify({'error':'菜名不能为空'}),400
-    db.execute('''UPDATE recipes SET title=?,category_id=?,description=?,ingredients=?,steps=?,
+    db.execute('''UPDATE recipes SET title=?,category_id=?,sub_category=?,description=?,ingredients=?,steps=?,
         difficulty=?,cook_time=?,servings=?,image=?,tags=?,updated_at=? WHERE id=?''',
         (title,request.form.get('category_id',ex['category_id']),
+         request.form.get('sub_category',ex['sub_category'] if ex['sub_category'] else ''),
          request.form.get('description',ex['description']),
          request.form.get('ingredients',ex['ingredients']),
          request.form.get('steps',ex['steps']),

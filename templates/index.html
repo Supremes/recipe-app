@@ -74,6 +74,14 @@ input,textarea,select{font-family:inherit;outline:none}
 .sidebar-manage{padding:12px 16px;font-size:0.82rem;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;gap:5px;transition:all 0.25s;border:none;background:none;width:100%;text-align:left}
 .sidebar-manage:hover{color:var(--purple)}
 
+/* ═══ SUB-PILLS ═══ */
+.sub-pills-bar{display:none;padding:8px 22px 6px;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-shrink:0;background:linear-gradient(180deg,#FAF5FF 0%,transparent 100%)}
+.sub-pills-bar::-webkit-scrollbar{display:none}
+.sub-pills-bar.show{display:flex}
+.sub-pill{white-space:nowrap;padding:5px 12px;border-radius:16px;font-size:0.78rem;border:1.5px solid var(--border);background:var(--bg-card);color:var(--text-sub);cursor:pointer;flex-shrink:0;transition:all 0.2s}
+.sub-pill:hover{background:var(--purple-soft)}
+.sub-pill.active{background:var(--purple);color:#fff;border-color:var(--purple);font-weight:500}
+
 /* ═══ MAIN ═══ */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
 .main-header{padding:14px 22px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);background:#fff;flex-shrink:0}
@@ -360,6 +368,8 @@ select.fc{cursor:pointer;-webkit-appearance:none;appearance:none;background:#fff
   .sidebar-divider{display:none}
   .sidebar-manage{white-space:nowrap;padding:7px 12px;font-size:0.78rem;flex-shrink:0;width:auto;flex-basis:auto;border-radius:20px;border:1.5px dashed var(--border);background:transparent;color:var(--text-muted);scroll-snap-align:start;transition:all 0.2s}
   .manage-text{display:none}
+  .sub-pills-bar{padding:6px 12px 4px;gap:6px}
+  .sub-pill{padding:4px 10px;font-size:0.72rem;border-radius:14px}
 
   .grid-wrap{padding:10px}
   .recipe-grid{grid-template-columns:repeat(2,1fr);gap:8px}
@@ -432,6 +442,7 @@ select.fc{cursor:pointer;-webkit-appearance:none;appearance:none;background:#fff
         <span class="main-count" id="mainCount"></span>
         <div class="main-actions"><button class="mbtn outline" onclick="randomPick()">🎲 随机选菜</button></div>
       </div>
+      <div class="sub-pills-bar" id="subPills"></div>
       <div class="grid-wrap">
         <div class="recipe-grid" id="recipeGrid"></div>
         <div class="empty" id="emptyState" style="display:none"><div class="icon">🍽️</div><h3>还没有菜谱~</h3><p>点击「添加菜谱」开始你的美食之旅吧</p></div>
@@ -509,6 +520,7 @@ select.fc{cursor:pointer;-webkit-appearance:none;appearance:none;background:#fff
       <div class="fg"><label>🏷️ 菜名 *</label><input class="fc" id="fTitle" placeholder="给你的菜取个好名字~"></div>
       <div class="form-row">
         <div class="fg"><label>📂 分类</label><select class="fc" id="fCategory"></select></div>
+        <div class="fg"><label>🍖 食材标签</label><input class="fc" id="fSub" placeholder="如：猪肉、牛肉、豆腐"></div>
         <div class="fg"><label>⚡ 难度</label><select class="fc" id="fDifficulty"><option value="简单">🟢 简单</option><option value="中等">🟡 中等</option><option value="困难">🔴 困难</option></select></div>
       </div>
       <div class="form-row">
@@ -672,7 +684,7 @@ select.fc{cursor:pointer;-webkit-appearance:none;appearance:none;background:#fff
 <script>
 function localDateStr(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 // ══════ STATE ══════
-let categories=[], recipes=[], cart=new Set(), currentCat='all', currentPage='home';
+let categories=[], recipes=[], cart=new Set(), currentCat='all', currentSub='', currentPage='home';
 let orderItems=[], pickerSelected=new Set(), searchTimer=null;
 let confirmCb=null, imgRemoved=false;
 
@@ -741,16 +753,27 @@ function renderSidebar(){
   el.innerHTML=h;
 }
 function renderCatSelect(){document.getElementById('fCategory').innerHTML=categories.map(c=>`<option value="${c.id}">${c.icon} ${esc(c.name)}</option>`).join('')}
-function setCat(id){currentCat=id;loadRecipes()}
+function setCat(id){currentCat=id;currentSub='';loadRecipes()}
+function setSub(name){currentSub=(currentSub===name?'':name);loadRecipes()}
+async function renderSubPills(){
+  const el=document.getElementById('subPills');
+  if(currentCat==='all'){el.classList.remove('show');el.innerHTML='';return}
+  const r=await fetch('/api/sub_categories?category='+currentCat);
+  const subs=await r.json();
+  if(!subs.length){el.classList.remove('show');el.innerHTML='';return}
+  el.classList.add('show');
+  el.innerHTML=subs.map(s=>`<button class="sub-pill ${currentSub===s?'active':''}" onclick="setSub('${s}')">${s}</button>`).join('');
+}
 
 // ══════ RECIPES ══════
 async function loadRecipes(){
   const p=new URLSearchParams();
   if(currentCat!=='all')p.set('category',currentCat);
+  if(currentSub)p.set('sub',currentSub);
   const q=document.getElementById('searchInput').value.trim();
   if(q)p.set('search',q);
   const r=await fetch('/api/recipes?'+p); recipes=await r.json();
-  renderGrid(); renderSidebar();
+  renderGrid(); renderSidebar(); renderSubPills();
   const cat=categories.find(c=>c.id===currentCat);
   document.getElementById('mainTitle').textContent=cat?cat.name:'全部菜谱';
   document.getElementById('mainCount').textContent=`${recipes.length} 道菜`;
@@ -794,6 +817,7 @@ function openRecipeModal(r){
   document.getElementById('recipeId').value=r?r.id:'';
   document.getElementById('fTitle').value=r?r.title:'';
   document.getElementById('fCategory').value=r?r.category_id:(categories[0]?.id||'');
+  document.getElementById('fSub').value=r?(r.sub_category||''):'';
   document.getElementById('fDifficulty').value=r?r.difficulty:'简单';
   document.getElementById('fTime').value=r?(r.cook_time||''):'';
   document.getElementById('fServings').value=r?(r.servings||''):'';
@@ -864,6 +888,7 @@ async function saveRecipe(){
   const id=document.getElementById('recipeId').value;
   const fd=new FormData();
   fd.append('title',title);fd.append('category_id',document.getElementById('fCategory').value);
+  fd.append('sub_category',document.getElementById('fSub').value.trim());
   fd.append('difficulty',document.getElementById('fDifficulty').value);
   fd.append('cook_time',document.getElementById('fTime').value);fd.append('servings',document.getElementById('fServings').value);
   fd.append('description',document.getElementById('fDesc').value);
@@ -899,6 +924,7 @@ function viewRecipe(id){
       <span class="dmeta ${dc}">${r.difficulty==='简单'?'🟢':r.difficulty==='中等'?'🟡':'🔴'} ${r.difficulty}</span>
       ${r.cook_time?`<span class="dmeta time">⏱️ ${esc(r.cook_time)}</span>`:''}
       ${r.servings?`<span class="dmeta">👥 ${esc(r.servings)}</span>`:''}
+      ${r.sub_category?`<span class="dmeta" style="background:#FEF3C7;color:#D97706">🍖 ${esc(r.sub_category)}</span>`:''}
     </div>`;
   if(r.description)h+=`<div class="detail-desc">${esc(r.description)}</div>`;
   if(r.ingredients.length)h+=`<div class="detail-sec"><h3>🥕 食材清单</h3><div class="ing-grid">${r.ingredients.map(i=>`<div class="ing-item">${esc(i)}</div>`).join('')}</div></div>`;
