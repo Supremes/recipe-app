@@ -109,6 +109,9 @@ input,textarea,select{font-family:inherit;outline:none}
 .card-footer{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
 .card-tag{padding:2px 7px;background:var(--purple-soft);color:var(--purple);border-radius:8px;font-size:0.7rem}
 .card-time{font-size:0.72rem;color:var(--text-muted);display:flex;align-items:center;gap:2px;margin-left:auto}
+.card-tutorial{display:flex;align-items:center;gap:4px;padding:6px 12px 8px;font-size:0.72rem;color:var(--purple);text-decoration:none;transition:all .2s;border-top:1px solid var(--border);background:var(--purple-soft)}
+.card-tutorial:hover{background:#EDE9FE;color:#7C3AED}
+.card-tutorial svg{width:12px;height:12px;flex-shrink:0}
 .btn-add-cart{width:28px;height:28px;background:var(--purple);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:all 0.25s;flex-shrink:0}
 .btn-add-cart:hover{background:var(--purple-dark);transform:scale(1.1)}
 .btn-add-cart.in-cart{background:var(--green)}
@@ -380,6 +383,7 @@ select.fc{cursor:pointer;-webkit-appearance:none;appearance:none;background:#fff
   .card-footer{gap:3px}
   .card-tag{font-size:0.65rem;padding:1px 5px}
   .card-time{font-size:0.65rem}
+  .card-tutorial{font-size:0.65rem;padding:4px 10px 6px}
   .btn-add-cart{width:24px;height:24px;font-size:0.85rem}
 
   .main-header{padding:10px 12px}
@@ -528,6 +532,7 @@ select.fc{cursor:pointer;-webkit-appearance:none;appearance:none;background:#fff
         <div class="fg"><label>👥 份量</label><input class="fc" id="fServings" placeholder="如：2-3人份"></div>
       </div>
       <div class="fg"><label>📝 简介</label><textarea class="fc" id="fDesc" placeholder="简单介绍一下..." rows="2"></textarea></div>
+      <div class="fg"><label>📺 教程链接</label><input class="fc" id="fTutorial" placeholder="粘贴视频/文章教程链接（选填）" type="url"></div>
       <div class="fg"><label>🖼️ 图片</label>
         <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fImage').click()">
           <div class="icon">📷</div><p>点击或拖拽上传</p><small>JPG/PNG/GIF/WebP，最大 16MB</small>
@@ -794,7 +799,7 @@ function renderGrid(){
           ${r.difficulty?`<span class="card-tag">${r.difficulty==='简单'?'🟢':r.difficulty==='中等'?'🟡':'🔴'} ${r.difficulty}</span>`:''}
           ${r.cook_time?`<span class="card-time">⏱️ ${esc(r.cook_time)}</span>`:''}
           <button class="btn-add-cart ${inCart?'in-cart':''}" onclick="event.stopPropagation();toggleCart('${r.id}')">${inCart?'✓':'+'}</button>
-        </div></div></div>`;
+        </div>${r.tutorial_url?`<a class="card-tutorial" href="${r.tutorial_url}" target="_blank" onclick="event.stopPropagation()"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg> 看教程</a>`:''}</div></div>`;
   }).join('');
 }
 
@@ -821,6 +826,7 @@ function openRecipeModal(r){
   document.getElementById('fDifficulty').value=r?r.difficulty:'简单';
   document.getElementById('fTime').value=r?(r.cook_time||''):'';
   document.getElementById('fServings').value=r?(r.servings||''):'';
+  document.getElementById("fTutorial").value=r?(r.tutorial_url||""):"";
   document.getElementById('fDesc').value=r?(r.description||''):'';
   document.getElementById('fImage').value=''; imgRemoved=false;
   if(r&&r.image){document.getElementById('prevImg').src='/uploads/'+r.image;document.getElementById('uploadPrev').style.display='block';document.getElementById('uploadZone').style.display='none'}
@@ -891,6 +897,7 @@ async function saveRecipe(){
   fd.append('sub_category',document.getElementById('fSub').value.trim());
   fd.append('difficulty',document.getElementById('fDifficulty').value);
   fd.append('cook_time',document.getElementById('fTime').value);fd.append('servings',document.getElementById('fServings').value);
+  fd.append("tutorial_url",document.getElementById("fTutorial").value.trim());
   fd.append('description',document.getElementById('fDesc').value);
   const ings=[];document.querySelectorAll('#ingList .le-input').forEach(i=>{const v=i.value.trim();if(v)ings.push(v)});fd.append('ingredients',JSON.stringify(ings));
   const steps=[];document.querySelectorAll('#stepList .step-ta').forEach(t=>{const v=t.value.trim();if(v)steps.push(v)});fd.append('steps',JSON.stringify(steps));
@@ -927,6 +934,7 @@ function viewRecipe(id){
       ${r.sub_category?`<span class="dmeta" style="background:#FEF3C7;color:#D97706">🍖 ${esc(r.sub_category)}</span>`:''}
     </div>`;
   if(r.description)h+=`<div class="detail-desc">${esc(r.description)}</div>`;
+  if(r.tutorial_url)h+=`<div class="detail-sec"><a href="${r.tutorial_url}" target="_blank" rel="noopener" class="card-tutorial" style="display:inline-flex;padding:8px 14px;font-size:0.85rem;border-radius:var(--radius-xs);border:1px solid var(--border)"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg> 📺 查看教程</a></div>`;
   if(r.ingredients.length)h+=`<div class="detail-sec"><h3>🥕 食材清单</h3><div class="ing-grid">${r.ingredients.map(i=>`<div class="ing-item">${esc(i)}</div>`).join('')}</div></div>`;
   if(r.steps.length)h+=`<div class="detail-sec"><h3>👩‍🍳 烹饪步骤</h3><div class="step-list">${r.steps.map((s,i)=>`<div class="step-detail"><div class="step-bullet">${i+1}</div><div class="step-text">${esc(s)}</div></div>`).join('')}</div></div>`;
   h+=`<div class="detail-foot">

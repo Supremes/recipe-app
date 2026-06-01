@@ -212,13 +212,13 @@ def create_recipe():
     if not title: return jsonify({'error':'菜名不能为空'}),400
     auto_gen = request.form.get('auto_generate','') == 'true'
     ingredients_str = request.form.get('ingredients','[]')
-    db.execute('''INSERT INTO recipes(id,title,category_id,sub_category,description,ingredients,steps,
-        difficulty,cook_time,servings,image,tags,monthly_sales,created_at,updated_at)
-        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',
-        (rid,title,request.form.get('category_id',''),request.form.get('sub_category',''),request.form.get('description',''),
-         ingredients_str,request.form.get('steps','[]'),
-         request.form.get('difficulty','简单'),request.form.get('cook_time',''),
-         request.form.get('servings',''),img,request.form.get('tags','[]'),0,now,now))
+    db.execute("""INSERT INTO recipes(id,title,category_id,sub_category,description,ingredients,steps,
+        difficulty,cook_time,servings,image,tags,tutorial_url,monthly_sales,created_at,updated_at)
+        VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+        (rid,title,request.form.get("category_id",""),request.form.get("sub_category",""),request.form.get("description",""),
+         ingredients_str,request.form.get("steps","[]"),
+         request.form.get("difficulty","简单"),request.form.get("cook_time",""),
+         request.form.get("servings",""),img,request.form.get("tags","[]"),request.form.get("tutorial_url",""),0,now,now))
     db.commit(); db.close()
     # Auto-generate image in background if no image uploaded
     if not img and auto_gen:
@@ -271,17 +271,17 @@ def update_recipe(rid):
         img = ''
     title = request.form.get('title','').strip()
     if not title: return jsonify({'error':'菜名不能为空'}),400
-    db.execute('''UPDATE recipes SET title=?,category_id=?,sub_category=?,description=?,ingredients=?,steps=?,
-        difficulty=?,cook_time=?,servings=?,image=?,tags=?,updated_at=? WHERE id=?''',
-        (title,request.form.get('category_id',ex['category_id']),
-         request.form.get('sub_category',ex['sub_category'] if ex['sub_category'] else ''),
-         request.form.get('description',ex['description']),
-         request.form.get('ingredients',ex['ingredients']),
-         request.form.get('steps',ex['steps']),
-         request.form.get('difficulty',ex['difficulty']),
-         request.form.get('cook_time',ex['cook_time']),
-         request.form.get('servings',ex['servings']),
-         img,request.form.get('tags',ex['tags']),now,rid))
+    db.execute("""UPDATE recipes SET title=?,category_id=?,sub_category=?,description=?,ingredients=?,steps=?,
+        difficulty=?,cook_time=?,servings=?,image=?,tags=?,tutorial_url=?,updated_at=? WHERE id=?""",
+        (title,request.form.get("category_id",ex["category_id"]),
+         request.form.get("sub_category",ex["sub_category"] if ex["sub_category"] else ""),
+         request.form.get("description",ex["description"]),
+         request.form.get("ingredients",ex["ingredients"]),
+         request.form.get("steps",ex["steps"]),
+         request.form.get("difficulty",ex["difficulty"]),
+         request.form.get("cook_time",ex["cook_time"]),
+         request.form.get("servings",ex["servings"]),
+         img,request.form.get("tags",ex["tags"]),request.form.get("tutorial_url",ex["tutorial_url"]),now,rid))
     db.commit(); db.close()
     # Auto-generate image if requested and no image
     auto_gen = request.form.get('auto_generate','') == 'true'
