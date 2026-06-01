@@ -310,7 +310,7 @@ def random_recipe():
     return jsonify(d)
 
 # ══════════ ORDERS ══════════
-MEAL_TYPES = {'breakfast':'🌅 早餐','lunch':'☀️ 午餐','dinner':'🌙 晚餐'}
+MEAL_TYPES = {"breakfast":"🌅 早餐","lunch":"☀️ 午餐","snack":"🍵 下午茶","dinner":"🌙 晚餐","midnight":"🌙 夜宵"}
 
 @app.route('/api/orders')
 def get_orders():

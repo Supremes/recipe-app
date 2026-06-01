@@ -131,7 +131,7 @@ input,textarea,select{font-family:inherit;outline:none}
 .nav-item .ni{font-size:1.2rem}
 
 /* ═══ PAGE CONTAINERS ═══ */
-.page{display:none;flex:1;flex-direction:column;overflow:hidden}
+.page{display:none;flex:1;flex-direction:column;overflow:hidden;position:relative}
 .page.active{display:flex}
 
 /* ═══ MODAL ═══ */
@@ -186,8 +186,12 @@ select.fc{cursor:pointer;-webkit-appearance:none;appearance:none;background:#fff
 .step-ta:focus{border-color:var(--purple)}
 
 /* ═══ DETAIL MODAL ═══ */
-.detail-img{width:100%;max-height:260px;object-fit:cover;display:block}
-.detail-ph{width:100%;height:140px;background:linear-gradient(135deg,#F3E8FF,#FCE7F3);display:flex;align-items:center;justify-content:center;font-size:3.5rem;opacity:0.2}
+.detail-img-wrap{position:relative;width:100%;padding-top:60%;overflow:hidden;background:linear-gradient(135deg,#F3E8FF,#FCE7F3);border-radius:var(--radius) var(--radius) 0 0}
+.detail-img-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.detail-img-wrap .btn-x{position:absolute;top:12px;right:12px;z-index:2;background:rgba(0,0,0,0.35);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.detail-img-wrap .btn-x:hover{background:rgba(0,0,0,0.55)}
+.detail-img-wrap .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:4rem;opacity:0.15}
+.detail-ph{display:none}
 .detail-info{padding:16px 20px}
 .detail-title{font-size:1.3rem;font-weight:700;margin-bottom:8px}
 .detail-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
@@ -196,7 +200,7 @@ select.fc{cursor:pointer;-webkit-appearance:none;appearance:none;background:#fff
 .dmeta.diff-easy{background:#F0FDF4;color:var(--green)}
 .dmeta.diff-mid{background:#FFFBEB;color:var(--orange)}
 .dmeta.diff-hard{background:#FEF2F2;color:var(--red)}
-.detail-desc{font-size:0.88rem;color:var(--text-sub);line-height:1.7;margin-bottom:16px;padding:10px 12px;background:var(--bg);border-radius:var(--radius-xs)}
+.detail-desc{font-size:0.88rem;color:var(--text-sub);line-height:1.7;margin-bottom:16px;padding:10px 12px;background:var(--bg);border-radius:var(--radius-xs);white-space:pre-line}
 .detail-sec{margin-bottom:16px}
 .detail-sec h3{font-size:0.95rem;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:5px;color:var(--purple)}
 .ing-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px}
@@ -204,20 +208,15 @@ select.fc{cursor:pointer;-webkit-appearance:none;appearance:none;background:#fff
 .step-list{display:flex;flex-direction:column;gap:8px}
 .step-detail{display:flex;gap:10px;align-items:flex-start}
 .step-bullet{width:28px;height:28px;background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.78rem;font-weight:700;flex-shrink:0}
-.step-text{flex:1;padding:10px 12px;background:var(--bg);border-radius:var(--radius-sm);line-height:1.7;font-size:0.88rem}
-.detail-foot{display:flex;gap:8px;padding:14px 20px;border-top:1px solid var(--border)}
+.step-text{flex:1;padding:10px 12px;background:var(--bg);border-radius:var(--radius-sm);line-height:1.7;font-size:0.88rem;white-space:pre-line}
+.detail-foot{display:flex;gap:8px;padding:14px 20px;border-top:1px solid var(--border);border-radius:0 0 var(--radius) var(--radius)}
 
 /* ═══ ORDERS PAGE ═══ */
-.order-create{padding:20px 22px;background:#fff;border-bottom:1px solid var(--border);flex-shrink:0}
-.order-form{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.order-form label{font-size:0.85rem;font-weight:500;color:var(--text-sub);white-space:nowrap}
-.order-form input[type=date],.order-form select{padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius-xs);font-size:0.88rem;font-family:inherit;background:#fff}
-.order-form input:focus,.order-form select:focus{border-color:var(--purple)}
-.order-recipes{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.order-history{flex:1;overflow-y:auto;padding:16px 22px}
+.order-recipes{display:flex;flex-wrap:wrap;gap:6px}
 .order-recipe-tag{display:flex;align-items:center;gap:4px;padding:5px 10px;background:var(--purple-soft);color:var(--purple);border-radius:16px;font-size:0.82rem}
 .order-recipe-tag .rm{width:18px;height:18px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.7rem;display:flex;align-items:center;justify-content:center;border-radius:50%}
 .order-recipe-tag .rm:hover{color:var(--red);background:#FEE2E2}
-.order-history{flex:1;overflow-y:auto;padding:16px 22px}
 .order-card{background:var(--bg-card);border-radius:var(--radius);border:1px solid var(--border);padding:14px 16px;margin-bottom:12px;transition:all 0.25s}
 .order-card:hover{border-color:var(--border-purple);box-shadow:var(--shadow)}
 .order-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
@@ -225,7 +224,9 @@ select.fc{cursor:pointer;-webkit-appearance:none;appearance:none;background:#fff
 .order-meal{padding:3px 10px;border-radius:12px;font-size:0.78rem;font-weight:500}
 .meal-breakfast{background:#FEF3C7;color:#D97706}
 .meal-lunch{background:#DBEAFE;color:#2563EB}
+.meal-snack{background:#FCE7F3;color:#DB2777}
 .meal-dinner{background:#EDE9FE;color:var(--purple)}
+.meal-midnight{background:#1E293B;color:#93C5FD}
 .order-status{margin-left:auto;padding:3px 10px;border-radius:12px;font-size:0.72rem;font-weight:500}
 .status-active{background:#F0FDF4;color:var(--green)}
 .order-items{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
@@ -317,6 +318,10 @@ select.fc{cursor:pointer;-webkit-appearance:none;appearance:none;background:#fff
 .picker-card .pc{font-size:0.72rem;color:var(--text-muted)}
 
 /* Toast */
+.fab-order{position:absolute;bottom:20px;right:20px;width:52px;height:52px;background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;border:none;border-radius:50%;font-size:1.5rem;font-weight:300;box-shadow:0 4px 16px rgba(139,92,246,0.4);cursor:pointer;transition:all 0.3s;z-index:10;display:flex;align-items:center;justify-content:center}
+.fab-order:hover{transform:scale(1.1);box-shadow:0 6px 24px rgba(139,92,246,0.5)}
+.fab-order:active{transform:scale(0.95)}
+
 .toast-box{position:fixed;top:14px;right:14px;z-index:2000;display:flex;flex-direction:column;gap:6px}
 .toast{padding:10px 16px;border-radius:var(--radius-xs);font-size:0.85rem;display:flex;align-items:center;gap:6px;animation:tIn 0.3s;box-shadow:0 4px 16px rgba(0,0,0,0.1)}
 @keyframes tIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
@@ -345,14 +350,16 @@ select.fc{cursor:pointer;-webkit-appearance:none;appearance:none;background:#fff
   .btn-icon-circle{width:30px;height:30px;font-size:0.85rem}
 
   .layout{flex-direction:column}
-  .sidebar{width:100%;flex-direction:row;border-right:none;border-bottom:1px solid var(--border-purple);overflow-x:auto;overflow-y:hidden;padding:0;gap:0;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .sidebar{width:100%;flex-direction:row;border-right:none;border-bottom:none;overflow-x:auto;overflow-y:hidden;padding:8px 12px;gap:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none;scroll-snap-type:x mandatory;background:transparent}
   .sidebar::-webkit-scrollbar{display:none}
-  .sidebar-item{white-space:nowrap;padding:10px 14px;font-size:0.82rem;flex-shrink:0;flex-basis:auto;width:auto}
-  .sidebar-item.active{background:transparent}
-  .sidebar-item.active::before{left:25%;right:25%;bottom:0;top:auto;width:auto;height:3px;border-radius:3px 3px 0 0}
-  .sidebar-item .cnt{margin-left:4px;font-size:0.68rem}
+  .sidebar-item{white-space:nowrap;padding:7px 14px;font-size:0.8rem;flex-shrink:0;flex-basis:auto;width:auto;border-radius:20px;border:1.5px solid var(--border);background:var(--bg-card);color:var(--text-sub);scroll-snap-align:start;transition:all 0.2s}
+  .sidebar-item:hover{background:var(--purple-soft)}
+  .sidebar-item.active{background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;border-color:transparent;font-weight:600;box-shadow:0 2px 8px rgba(139,92,246,0.3)}
+  .sidebar-item.active::before{display:none}
+  .sidebar-item .cnt{display:none}
   .sidebar-divider{display:none}
-  .sidebar-manage{white-space:nowrap;padding:10px 14px;font-size:0.82rem;flex-shrink:0;width:auto;flex-basis:auto}
+  .sidebar-manage{white-space:nowrap;padding:7px 12px;font-size:0.78rem;flex-shrink:0;width:auto;flex-basis:auto;border-radius:20px;border:1.5px dashed var(--border);background:transparent;color:var(--text-muted);scroll-snap-align:start;transition:all 0.2s}
+  .manage-text{display:none}
 
   .grid-wrap{padding:10px}
   .recipe-grid{grid-template-columns:repeat(2,1fr);gap:8px}
@@ -380,9 +387,6 @@ select.fc{cursor:pointer;-webkit-appearance:none;appearance:none;background:#fff
   .stats-grid,.profile-stats{grid-template-columns:repeat(2,1fr);gap:8px}
   .stat-card,.pstat{padding:12px 8px}
   .stat-num,.pstat-num{font-size:1.2rem}
-
-  .order-form{flex-direction:column;align-items:stretch;gap:8px}
-  .order-form input[type=date],.order-form select{width:100%}
 
   .discover-wrap,.fridge-list,.profile-wrap{padding:12px}
   .featured-grid{grid-template-columns:repeat(2,1fr);gap:8px}
@@ -446,38 +450,24 @@ select.fc{cursor:pointer;-webkit-appearance:none;appearance:none;background:#fff
 
 <!-- ═══ PAGE: ORDERS ═══ -->
 <div class="page" id="page-orders">
-  <div class="order-create">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-      <h2 style="font-size:1.05rem;font-weight:600">📋 创建家庭宴席</h2>
-    </div>
-    <div class="order-form">
-      <label>📅 日期</label>
-      <input type="date" id="orderDate">
-      <label>🍽️ 餐次</label>
-      <select id="orderMeal">
-        <option value="breakfast">🌅 早餐</option>
-        <option value="lunch" selected>☀️ 午餐</option>
-        <option value="dinner">🌙 晚餐</option>
-      </select>
-      <button class="btn btn-primary" onclick="openRecipePicker()" style="white-space:nowrap">＋ 选菜</button>
-      <button class="btn btn-green" onclick="submitOrder()" style="white-space:nowrap">✓ 确认下单</button>
-    </div>
-    <div class="order-recipes" id="orderRecipes"></div>
-  </div>
   <div style="padding:12px 22px;border-bottom:1px solid var(--border);background:#fff;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-    <h3 style="font-size:1rem;font-weight:600;white-space:nowrap">📜 往期菜单</h3>
+    <h3 style="font-size:1.05rem;font-weight:600;white-space:nowrap">📜 往期菜单</h3>
     <div style="display:flex;gap:8px;margin-left:auto;align-items:center;flex-wrap:wrap">
       <input type="date" id="filterDate" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:var(--radius-xs);font-size:0.82rem;font-family:inherit;background:#fff" onchange="loadOrders()">
       <select id="filterMeal" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:var(--radius-xs);font-size:0.82rem;font-family:inherit;background:#fff;cursor:pointer" onchange="loadOrders()">
         <option value="all">全部餐次</option>
         <option value="breakfast">🌅 早餐</option>
         <option value="lunch">☀️ 午餐</option>
+        <option value="snack">🍵 下午茶</option>
         <option value="dinner">🌙 晚餐</option>
+        <option value="midnight">🌙 夜宵</option>
       </select>
       <button class="mbtn outline" onclick="clearOrderFilter()" style="padding:5px 10px;font-size:0.78rem">重置</button>
     </div>
   </div>
   <div class="order-history" id="orderHistory"></div>
+  <!-- Floating Add Button -->
+  <button class="fab-order" onclick="openCreateOrder()" title="创建新订单">＋</button>
 </div>
 
 <!-- ═══ PAGE: DISCOVER ═══ -->
@@ -552,10 +542,9 @@ select.fc{cursor:pointer;-webkit-appearance:none;appearance:none;background:#fff
 
 <!-- Detail -->
 <div class="modal-overlay" id="detailModal">
-  <div class="modal" style="max-width:620px">
-    <div style="position:relative">
-      <button class="btn-x" onclick="closeDetail()" style="position:absolute;top:10px;right:10px;z-index:2">✕</button>
-      <div id="detailImgArea"></div>
+  <div class="modal" style="max-width:620px;padding:0">
+    <div class="detail-img-wrap" id="detailImgArea">
+      <button class="btn-x" onclick="closeDetail()">✕</button>
     </div>
     <div class="detail-info" id="detailInfo"></div>
   </div>
@@ -574,19 +563,6 @@ select.fc{cursor:pointer;-webkit-appearance:none;appearance:none;background:#fff
 </div>
 
 <!-- Recipe Picker (for orders) -->
-<div class="modal-overlay" id="pickerModal">
-  <div class="modal" style="max-width:520px">
-    <div class="modal-head"><h2>🍽️ 选择菜品</h2><button class="btn-x" onclick="closePicker()">✕</button></div>
-    <div class="modal-body">
-      <div class="picker-grid" id="pickerGrid"></div>
-    </div>
-    <div class="modal-foot">
-      <button class="btn btn-ghost" onclick="closePicker()">取消</button>
-      <button class="btn btn-primary" onclick="confirmPicker()">✓ 确认</button>
-    </div>
-  </div>
-</div>
-
 <!-- Fridge Item Modal -->
 <div class="modal-overlay" id="fridgeModal">
   <div class="modal" style="max-width:420px">
@@ -621,6 +597,50 @@ select.fc{cursor:pointer;-webkit-appearance:none;appearance:none;background:#fff
   </div>
 </div>
 
+<!-- Create Order Modal -->
+<div class="modal-overlay" id="createOrderModal">
+  <div class="modal" style="max-width:500px">
+    <!-- Form View -->
+    <div id="orderFormView">
+      <div class="modal-head"><h2>📋 创建新订单</h2><button class="btn-x" onclick="closeCreateOrder()">✕</button></div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="fg"><label>📅 日期</label><input class="fc" type="date" id="orderDate"></div>
+          <div class="fg"><label>🍽️ 餐次</label>
+            <select class="fc" id="orderMeal">
+              <option value="breakfast">🌅 早餐</option>
+              <option value="lunch" selected>☀️ 午餐</option>
+              <option value="snack">🍵 下午茶</option>
+              <option value="dinner">🌙 晚餐</option>
+              <option value="midnight">🌙 夜宵</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg">
+          <label>🍽️ 已选菜品</label>
+          <div class="order-recipes" id="orderRecipes" style="margin-bottom:8px"></div>
+          <button class="le-add" type="button" onclick="openRecipePicker()">＋ 选择菜品</button>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" onclick="closeCreateOrder()">取消</button>
+        <button class="btn btn-green" onclick="submitOrder()">✓ 确认下单</button>
+      </div>
+    </div>
+    <!-- Picker View -->
+    <div id="orderPickerView" style="display:none">
+      <div class="modal-head"><h2>🍽️ 选择菜品</h2><button class="btn-x" onclick="closePicker()">✕</button></div>
+      <div class="modal-body">
+        <div class="picker-grid" id="pickerGrid"></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" onclick="closePicker()">← 返回</button>
+        <button class="btn btn-primary" onclick="confirmPicker()">✓ 确认选择</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Order Detail Modal -->
 <div class="modal-overlay" id="orderDetailModal">
   <div class="modal" style="max-width:480px">
@@ -650,6 +670,7 @@ select.fc{cursor:pointer;-webkit-appearance:none;appearance:none;background:#fff
 <div class="toast-box" id="toastBox"></div>
 
 <script>
+function localDateStr(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 // ══════ STATE ══════
 let categories=[], recipes=[], cart=new Set(), currentCat='all', currentPage='home';
 let orderItems=[], pickerSelected=new Set(), searchTimer=null;
@@ -686,7 +707,6 @@ function saveSettings(){
 // ══════ INIT ══════
 async function init(){
   await loadCategories(); await loadRecipes();
-  document.getElementById('orderDate').value = new Date().toISOString().split('T')[0];
   setupPageTabs();loadSettings();
 }
 
@@ -717,7 +737,7 @@ function renderSidebar(){
   const el=document.getElementById('sidebar');
   let h=`<button class="sidebar-item ${currentCat==='all'?'active':''}" onclick="setCat('all')"><span>📋</span> 全部 <span class="cnt">${recipes.length}</span></button>`;
   categories.forEach(c=>{h+=`<button class="sidebar-item ${currentCat===c.id?'active':''}" onclick="setCat('${c.id}')"><span>${c.icon}</span> ${esc(c.name)} <span class="cnt">${c.recipe_count}</span></button>`});
-  h+=`<div class="sidebar-divider"></div><button class="sidebar-manage" onclick="openCatModal()">⚙️ 分类管理</button>`;
+  h+=`<div class="sidebar-divider"></div><button class="sidebar-manage" onclick="openCatModal()">⚙️<span class="manage-text"> 分类管理</span></button>`;
   el.innerHTML=h;
 }
 function renderCatSelect(){document.getElementById('fCategory').innerHTML=categories.map(c=>`<option value="${c.id}">${c.icon} ${esc(c.name)}</option>`).join('')}
@@ -869,7 +889,8 @@ async function saveRecipe(){
 // ══════ DETAIL ══════
 function viewRecipe(id){
   const r=recipes.find(x=>x.id===id);if(!r)return;
-  document.getElementById('detailImgArea').innerHTML=r.image?`<img class="detail-img" src="/uploads/${r.image}">`:'<div class="detail-ph">🍽️</div>';
+  document.getElementById('detailImgArea').querySelector('.dyn-img')?.remove();
+  document.getElementById('detailImgArea').insertAdjacentHTML('afterbegin',r.image?`<img class="dyn-img" src="/uploads/${r.image}">`:'<div class="ph dyn-img">🍽️</div>');
   const cat=categories.find(c=>c.id===r.category_id);
   const dc=r.difficulty==='简单'?'diff-easy':r.difficulty==='中等'?'diff-mid':'diff-hard';
   let h=`<div class="detail-title">${esc(r.title)}</div>
@@ -912,8 +933,8 @@ async function loadOrders(){
   if(!orders.length){
     const hint=dateF||mealF!=='all'?'没有找到匹配的订单':'创建你的第一顿饭吧~';
     el.innerHTML=`<div class="empty" style="padding:40px"><div class="icon">📋</div><h3>暂无订单</h3><p>${hint}</p></div>`;return}
-  const mealLabels={breakfast:'🌅 早餐',lunch:'☀️ 午餐',dinner:'🌙 晚餐'};
-  const mealClass={breakfast:'meal-breakfast',lunch:'meal-lunch',dinner:'meal-dinner'};
+  const mealLabels={breakfast:'🌅 早餐',lunch:'☀️ 午餐',snack:'🍵 下午茶',dinner:'🌙 晚餐',midnight:'🌙 夜宵'};
+  const mealClass={breakfast:'meal-breakfast',lunch:'meal-lunch',snack:'meal-snack',dinner:'meal-dinner',midnight:'meal-midnight'};
   el.innerHTML=orders.map(o=>`
     <div class="order-card" onclick="viewOrderDetail('${o.id}')" style="cursor:pointer">
       <div class="order-header">
@@ -924,7 +945,7 @@ async function loadOrders(){
       <div class="order-items">${o.items.map(i=>`<span class="order-item-tag">🍽️ ${esc(i.recipe_title)}</span>`).join('')}${o.items.length===0?'<span class="order-item-tag" style="opacity:0.5">无菜品</span>':''}</div>
       <div style="display:flex;align-items:center;margin-top:6px">
         <span style="font-size:0.75rem;color:var(--text-muted)">共 ${o.items.length} 道菜 · 点击查看详情</span>
-        <span style="margin-left:auto;font-size:0.72rem;color:var(--text-muted)">${(o.created_at||'').slice(11,16)}</span>
+        <span style="margin-left:auto;font-size:0.72rem;color:var(--text-muted)">${(o.created_at||'').replace('T',' ').slice(5,16)}</span>
       </div>
     </div>
   `).join('');
@@ -944,12 +965,12 @@ function viewOrderDetail(id){
   // Find from cache or re-fetch
   const o=allOrdersCache.find(x=>x.id===id);
   if(!o){loadAllOrders().then(()=>viewOrderDetail(id));return}
-  const mealLabels={breakfast:'🌅 早餐',lunch:'☀️ 午餐',dinner:'🌙 晚餐'};
-  const mealClass={breakfast:'meal-breakfast',lunch:'meal-lunch',dinner:'meal-dinner'};
+  const mealLabels={breakfast:'🌅 早餐',lunch:'☀️ 午餐',snack:'🍵 下午茶',dinner:'🌙 晚餐',midnight:'🌙 夜宵'};
+  const mealClass={breakfast:'meal-breakfast',lunch:'meal-lunch',snack:'meal-snack',dinner:'meal-dinner',midnight:'meal-midnight'};
   document.getElementById('orderDetailTitle').textContent=`📋 ${o.order_date} ${mealLabels[o.meal_type]||''}`;
   let body=`<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
     <span class="dmeta">📅 ${o.order_date}</span>
-    <span class="dmeta" style="background:${o.meal_type==='breakfast'?'#FEF3C7':o.meal_type==='lunch'?'#DBEAFE':'#EDE9FE'};color:${o.meal_type==='breakfast'?'#D97706':o.meal_type==='lunch'?'#2563EB':'#7C3AED'}">${mealLabels[o.meal_type]||o.meal_type}</span>
+    <span class="dmeta ${mealClass[o.meal_type]||''}">${mealLabels[o.meal_type]||o.meal_type}</span>
     <span class="dmeta" style="background:#F0FDF4;color:#16A34A">${o.status==='active'?'✅ 已下单':'已完成'}</span>
   </div>`;
   if(o.items.length){
@@ -989,10 +1010,11 @@ function openRecipePicker(){
       <div class="pi">${cat?cat.icon:'🍽️'}</div><div class="pt">${esc(r.title)}</div>
       <div class="pc">${r.difficulty} · ${esc(r.cook_time||'')}</div></div>`;
   }).join('');
-  document.getElementById('pickerModal').classList.add('active');
+  document.getElementById('orderFormView').style.display='none';
+  document.getElementById('orderPickerView').style.display='';
 }
 function togglePicker(id,el){pickerSelected.has(id)?pickerSelected.delete(id):pickerSelected.add(id);el.classList.toggle('selected')}
-function closePicker(){document.getElementById('pickerModal').classList.remove('active')}
+function closePicker(){document.getElementById('orderPickerView').style.display='none';document.getElementById('orderFormView').style.display=''}
 function confirmPicker(){
   orderItems=[];
   pickerSelected.forEach(id=>{const r=recipes.find(x=>x.id===id);if(r)orderItems.push({recipe_id:r.id,recipe_title:r.title})});
@@ -1007,14 +1029,26 @@ async function submitOrder(){
   const r=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({order_date:document.getElementById('orderDate').value,meal_type:document.getElementById('orderMeal').value,items:orderItems})});
   const d=await r.json();
-  if(r.ok){toast('下单成功 🎉','ok');orderItems=[];renderOrderRecipes();cart.clear();updateOrderBtn();renderGrid();loadOrders()}
+  if(r.ok){toast('下单成功 🎉','ok');orderItems=[];renderOrderRecipes();cart.clear();updateOrderBtn();renderGrid();closeCreateOrder();loadOrders()}
   else toast(d.error||'下单失败','err');
 }
 function openOrderConfirm(){
   if(!cart.size)return;
   orderItems=[];
   cart.forEach(id=>{const r=recipes.find(x=>x.id===id);if(r)orderItems.push({recipe_id:r.id,recipe_title:r.title})});
-  switchPage('orders');renderOrderRecipes();
+  openCreateOrder();renderOrderRecipes();
+}
+function openCreateOrder(){
+  document.getElementById('orderDate').value=localDateStr();
+  document.getElementById('orderMeal').value='lunch';
+  document.getElementById('createOrderModal').classList.add('active');
+  document.body.classList.add('modal-open');
+}
+function closeCreateOrder(){
+  document.getElementById('createOrderModal').classList.remove('active');
+  document.getElementById('orderPickerView').style.display='none';
+  document.getElementById('orderFormView').style.display='';
+  document.body.classList.remove('modal-open');
 }
 async function cancelOrder(oid){
   showConfirm('取消订单','确定要取消这个订单吗？',async()=>{
@@ -1206,6 +1240,7 @@ function esc(s){if(!s)return '';const d=document.createElement('div');d.textCont
 document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',function(e){if(e.target===this){this.classList.remove('active');document.body.classList.remove('modal-open')}}));
 document.getElementById('confirmBg').addEventListener('click',function(e){if(e.target===this)closeConfirm()});
 document.getElementById('orderDetailModal').addEventListener('click',function(e){if(e.target===this)closeOrderDetail()});
+document.getElementById('createOrderModal').addEventListener('click',function(e){if(e.target===this)closeCreateOrder()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){
   if(document.getElementById('confirmBg').classList.contains('show'))closeConfirm();
   else{const m=document.querySelector('.modal-overlay.active');if(m){m.classList.remove('active');document.body.classList.remove('modal-open')}}}});
