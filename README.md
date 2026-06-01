@@ -93,4 +93,3 @@ recipe-app/
 - 数据库文件 `recipes.db` 会在首次运行时自动创建
 - `uploads/` 目录存放用户上传和 AI 生成的图片
 - AI 图片生成使用 Pollinations.ai 免费服务，无需配置 API Key
-# test
