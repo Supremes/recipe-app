@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🍳 杜堡堡小厨房</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --purple:#8B5CF6;--purple-light:#A78BFA;--purple-dark:#7C3AED;
+  --purple-soft:rgba(139,92,246,0.08);--purple-glow:rgba(139,92,246,0.2);
+  --pink:#EC4899;--pink-soft:rgba(236,72,153,0.08);
+  --orange:#F97316;--yellow:#FBBF24;--green:#22C55E;--red:#EF4444;
+  --bg:#FDF8F3;--bg-card:#FFFFFF;--bg-sidebar:#FAF5FF;
+  --text:#1E1B2E;--text-sub:#6B7280;--text-muted:#9CA3AF;
+  --border:#F0EBE5;--border-purple:rgba(139,92,246,0.15);
+  --radius:14px;--radius-sm:10px;--radius-xs:8px;
+  --shadow:0 2px 12px rgba(0,0,0,0.06);--shadow-lg:0 8px 30px rgba(0,0,0,0.1);
+}
+html{font-size:14px}
+body{font-family:'Noto Sans SC',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+body.modal-open{overflow:hidden}
+button{font-family:inherit;cursor:pointer;border:none;outline:none}
+input,textarea,select{font-family:inherit;outline:none}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(139,92,246,0.2);border-radius:3px}
+
+/* ═══ HEADER ═══ */
+.header{background:linear-gradient(135deg,#8B5CF6 0%,#A78BFA 40%,#C084FC 70%,#EC4899 100%);position:relative;overflow:hidden;flex-shrink:0;z-index:10}
+.header-deco{position:absolute;inset:0;pointer-events:none}
+.header-deco .circle{position:absolute;border-radius:50%;background:rgba(255,255,255,0.08)}
+.header-deco .c1{width:200px;height:200px;top:-60px;left:-40px}
+.header-deco .c2{width:120px;height:120px;bottom:-30px;right:60px}
+.header-inner{position:relative;z-index:1;padding:20px 28px 16px;display:flex;align-items:center;gap:16px}
+.avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#FFD1DC,#FFE4B5);border:3px solid rgba(255,255,255,0.6);display:flex;align-items:center;justify-content:center;font-size:1.8rem;box-shadow:0 4px 16px rgba(0,0,0,0.15);flex-shrink:0}
+.header-info{flex:1;color:#fff}
+.header-name{font-size:1.35rem;font-weight:700;display:flex;align-items:center;gap:8px}
+.header-name .level{background:rgba(255,255,255,0.25);padding:2px 10px;border-radius:12px;font-size:0.72rem;font-weight:600;backdrop-filter:blur(4px)}
+.header-sub{font-size:0.82rem;opacity:0.85;margin-top:3px}
+.header-notice{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.15);padding:3px 10px;border-radius:16px;font-size:0.75rem;margin-top:6px;backdrop-filter:blur(4px)}
+.header-actions{display:flex;gap:8px;margin-left:auto;align-items:center}
+.btn-add-recipe{padding:7px 16px;background:rgba(255,255,255,0.95);color:var(--purple);border-radius:18px;font-size:0.82rem;font-weight:600;transition:all 0.3s;display:flex;align-items:center;gap:4px}
+.btn-add-recipe:hover{background:#fff;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.1)}
+.btn-icon-circle{width:34px;height:34px;background:rgba(255,255,255,0.95);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.95rem;color:var(--purple);transition:all 0.3s}
+.btn-icon-circle:hover{background:#fff}
+
+/* ═══ NAV TABS ═══ */
+.page-tabs{display:flex;gap:0;padding:0 28px;background:rgba(255,255,255,0.08);position:relative;z-index:1}
+.page-tab{padding:10px 18px;color:rgba(255,255,255,0.65);font-size:0.88rem;font-weight:500;cursor:pointer;position:relative;transition:all 0.3s;background:none;border:none}
+.page-tab.active{color:#fff;font-weight:600}
+.page-tab.active::after{content:'';position:absolute;bottom:0;left:16px;right:16px;height:3px;background:#fff;border-radius:3px 3px 0 0}
+
+/* Search */
+.search-bar{display:none;padding:0 28px 12px;background:linear-gradient(135deg,#8B5CF6,#A78BFA,#C084FC,#EC4899);position:relative;z-index:1}
+.search-bar.show{display:block}
+.search-wrap{position:relative}
+.search-wrap input{width:100%;padding:9px 14px 9px 36px;background:rgba(255,255,255,0.95);border:none;border-radius:20px;font-size:0.88rem;color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.search-wrap input::placeholder{color:var(--text-muted)}
+.search-wrap .si{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:0.9rem;opacity:0.4}
+
+/* ═══ LAYOUT ═══ */
+.layout{display:flex;flex:1;overflow:hidden}
+
+/* ═══ SIDEBAR ═══ */
+.sidebar{width:150px;background:var(--bg-sidebar);border-right:1px solid var(--border-purple);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sidebar-item{padding:12px 16px;font-size:0.88rem;color:var(--text-sub);cursor:pointer;transition:all 0.25s;position:relative;display:flex;align-items:center;gap:6px;border:none;background:none;width:100%;text-align:left}
+.sidebar-item:hover{background:var(--purple-soft);color:var(--purple)}
+.sidebar-item.active{color:var(--purple);font-weight:600;background:var(--purple-soft)}
+.sidebar-item.active::before{content:'';position:absolute;left:0;top:18%;bottom:18%;width:3px;background:var(--purple);border-radius:0 3px 3px 0}
+.sidebar-item .cnt{margin-left:auto;background:var(--purple-soft);color:var(--purple);padding:1px 7px;border-radius:10px;font-size:0.72rem;font-weight:500}
+.sidebar-divider{height:1px;background:var(--border-purple);margin:6px 12px}
+.sidebar-manage{padding:12px 16px;font-size:0.82rem;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;gap:5px;transition:all 0.25s;border:none;background:none;width:100%;text-align:left}
+.sidebar-manage:hover{color:var(--purple)}
+
+/* ═══ MAIN ═══ */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.main-header{padding:14px 22px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);background:#fff;flex-shrink:0}
+.main-title{font-size:1.05rem;font-weight:600}
+.main-count{color:var(--text-muted);font-size:0.82rem}
+.main-actions{margin-left:auto;display:flex;gap:8px}
+.mbtn{padding:6px 14px;border-radius:18px;font-size:0.78rem;font-weight:500;transition:all 0.25s;display:flex;align-items:center;gap:4px}
+.mbtn.outline{background:#fff;border:1px solid var(--border-purple);color:var(--purple)}
+.mbtn.outline:hover{background:var(--purple-soft)}
+
+/* ═══ GRID ═══ */
+.grid-wrap{flex:1;overflow-y:auto;padding:16px 22px}
+.recipe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.recipe-card{background:var(--bg-card);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;transition:all 0.35s;cursor:pointer;position:relative}
+.recipe-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--border-purple)}
+.card-img{position:relative;width:100%;padding-top:62%;overflow:hidden;background:linear-gradient(135deg,#F3E8FF,#FCE7F3)}
+.card-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 0.5s}
+.recipe-card:hover .card-img img{transform:scale(1.06)}
+.card-img .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2.8rem;opacity:0.2}
+.card-badge{position:absolute;top:8px;left:8px;padding:2px 9px;background:rgba(139,92,246,0.85);color:#fff;border-radius:10px;font-size:0.7rem;font-weight:600;backdrop-filter:blur(4px)}
+.card-sales{position:absolute;bottom:8px;right:8px;padding:2px 8px;background:rgba(0,0,0,0.5);color:#fff;border-radius:10px;font-size:0.7rem;backdrop-filter:blur(4px)}
+.card-body{padding:10px 12px}
+.card-title{font-size:0.95rem;font-weight:600;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-desc{font-size:0.78rem;color:var(--text-sub);margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5}
+.card-footer{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.card-tag{padding:2px 7px;background:var(--purple-soft);color:var(--purple);border-radius:8px;font-size:0.7rem}
+.card-time{font-size:0.72rem;color:var(--text-muted);display:flex;align-items:center;gap:2px;margin-left:auto}
+.btn-add-cart{width:28px;height:28px;background:var(--purple);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:all 0.25s;flex-shrink:0}
+.btn-add-cart:hover{background:var(--purple-dark);transform:scale(1.1)}
+.btn-add-cart.in-cart{background:var(--green)}
+
+/* Empty */
+.empty{text-align:center;padding:60px 20px;color:var(--text-muted)}
+.empty .icon{font-size:3.5rem;margin-bottom:12px;opacity:0.3}
+.empty h3{font-size:1.1rem;color:var(--text-sub);margin-bottom:4px}
+
+/* ═══ BOTTOM BAR ═══ */
+.bottom-bar{display:flex;align-items:center;gap:10px;padding:10px 22px;background:#fff;border-top:1px solid var(--border);flex-shrink:0}
+.bottom-cart{display:flex;align-items:center;gap:6px;padding:6px 14px;background:var(--purple-soft);border-radius:20px;cursor:pointer;transition:all 0.25s;font-size:0.85rem}
+.bottom-cart:hover{background:var(--purple-glow)}
+.bottom-btns{display:flex;gap:8px;margin-left:auto}
+.bbtn{padding:8px 18px;border-radius:20px;font-size:0.82rem;font-weight:500;transition:all 0.3s;display:flex;align-items:center;gap:4px;border:none}
+.bbtn.random{background:#fff;border:1px solid var(--border-purple);color:var(--purple)}
+.bbtn.random:hover{background:var(--purple-soft)}
+.bbtn.invite{background:#fff;border:1px solid var(--purple);color:var(--purple)}
+.bbtn.invite:hover{background:var(--purple-soft)}
+.bbtn.order{background:var(--purple);color:#fff;padding:8px 24px}
+.bbtn.order:hover{background:var(--purple-dark)}
+.bbtn.order.disabled{background:#E5E7EB;color:#9CA3AF;cursor:default}
+
+/* ═══ NAV BAR ═══ */
+.navbar{display:flex;background:#fff;border-top:1px solid var(--border);padding:6px 0 10px;flex-shrink:0}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--text-muted);font-size:0.7rem;cursor:pointer;transition:color 0.25s;border:none;background:none;padding:3px}
+.nav-item:hover,.nav-item.active{color:var(--purple)}
+.nav-item .ni{font-size:1.2rem}
+
+/* ═══ PAGE CONTAINERS ═══ */
+.page{display:none;flex:1;flex-direction:column;overflow:hidden}
+.page.active{display:flex}
+
+/* ═══ MODAL ═══ */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(30,27,46,0.5);backdrop-filter:blur(6px);z-index:1000;justify-content:center;align-items:flex-start;padding:24px 12px;overflow-y:auto}
+.modal-overlay.active{display:flex}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:580px;box-shadow:0 20px 60px rgba(0,0,0,0.2);animation:mIn 0.3s ease}
+@keyframes mIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.modal-head{display:flex;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border)}
+.modal-head h2{font-size:1.1rem;font-weight:600;flex:1}
+.btn-x{width:30px;height:30px;background:var(--bg);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.9rem;color:var(--text-sub);transition:all 0.2s}
+.btn-x:hover{background:#FEE2E2;color:#EF4444}
+.modal-body{padding:16px 20px;max-height:62vh;overflow-y:auto}
+.modal-foot{display:flex;gap:8px;justify-content:flex-end;padding:14px 20px;border-top:1px solid var(--border)}
+.btn{padding:9px 20px;border-radius:var(--radius-xs);font-size:0.88rem;font-weight:500;transition:all 0.25s;border:none}
+.btn-ghost{background:var(--bg);color:var(--text-sub)}
+.btn-ghost:hover{background:#E5E7EB}
+.btn-primary{background:var(--purple);color:#fff}
+.btn-primary:hover{background:var(--purple-dark)}
+.btn-danger{background:#FEE2E2;color:#EF4444}
+.btn-danger:hover{background:#FECACA}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{background:#16A34A}
+
+/* Form */
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:0.8rem;font-weight:500;color:var(--text-sub);margin-bottom:5px}
+.fc{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--radius-xs);font-size:0.88rem;color:var(--text);transition:border-color 0.25s;background:#fff}
+.fc:focus{border-color:var(--purple);box-shadow:0 0 0 3px var(--purple-glow)}
+textarea.fc{min-height:70px;resize:vertical;line-height:1.6}
+select.fc{cursor:pointer;-webkit-appearance:none;appearance:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236B7280'/%3E%3C/svg%3E") no-repeat right 10px center}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.upload-zone{border:2px dashed var(--border-purple);border-radius:var(--radius-sm);padding:22px;text-align:center;cursor:pointer;transition:all 0.3s}
+.upload-zone:hover,.upload-zone.dragover{border-color:var(--purple);background:var(--purple-soft)}
+.upload-zone .icon{font-size:1.8rem;margin-bottom:6px}
+.upload-zone p{color:var(--text-sub);font-size:0.85rem}
+.upload-zone small{color:var(--text-muted);font-size:0.72rem}
+.upload-zone input{display:none}
+.upload-preview{position:relative;margin-top:8px;display:none}
+.upload-preview img{width:100%;max-height:160px;object-fit:cover;border-radius:var(--radius-xs)}
+.upload-preview .rm{position:absolute;top:5px;right:5px;width:24px;height:24px;background:rgba(0,0,0,0.6);border:none;border-radius:50%;color:#fff;font-size:0.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.le-item{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.le-num{width:24px;height:24px;background:var(--purple);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;flex-shrink:0}
+.le-input{flex:1;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--radius-xs);font-size:0.85rem;color:var(--text);transition:border-color 0.25s}
+.le-input:focus{border-color:var(--purple)}
+.le-rm{width:26px;height:26px;background:none;border:1px solid var(--border);border-radius:var(--radius-xs);color:var(--text-muted);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;flex-shrink:0;font-size:0.75rem}
+.le-rm:hover{border-color:#EF4444;color:#EF4444}
+.le-add{width:100%;padding:8px;background:none;border:1.5px dashed var(--border);border-radius:var(--radius-xs);color:var(--text-muted);font-size:0.82rem;display:flex;align-items:center;justify-content:center;gap:4px;cursor:pointer;transition:all 0.25s}
+.le-add:hover{border-color:var(--purple);color:var(--purple);border-style:solid}
+.step-item{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px}
+.step-num{width:26px;height:26px;background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0;margin-top:3px}
+.step-ta{flex:1;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--radius-xs);font-size:0.85rem;color:var(--text);resize:vertical;min-height:50px;line-height:1.6;transition:border-color 0.25s}
+.step-ta:focus{border-color:var(--purple)}
+
+/* ═══ DETAIL MODAL ═══ */
+.detail-img{width:100%;max-height:260px;object-fit:cover;display:block}
+.detail-ph{width:100%;height:140px;background:linear-gradient(135deg,#F3E8FF,#FCE7F3);display:flex;align-items:center;justify-content:center;font-size:3.5rem;opacity:0.2}
+.detail-info{padding:16px 20px}
+.detail-title{font-size:1.3rem;font-weight:700;margin-bottom:8px}
+.detail-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.dmeta{padding:4px 10px;background:var(--purple-soft);color:var(--purple);border-radius:16px;font-size:0.78rem;display:flex;align-items:center;gap:3px}
+.dmeta.time{background:#FFF7ED;color:var(--orange)}
+.dmeta.diff-easy{background:#F0FDF4;color:var(--green)}
+.dmeta.diff-mid{background:#FFFBEB;color:var(--orange)}
+.dmeta.diff-hard{background:#FEF2F2;color:var(--red)}
+.detail-desc{font-size:0.88rem;color:var(--text-sub);line-height:1.7;margin-bottom:16px;padding:10px 12px;background:var(--bg);border-radius:var(--radius-xs)}
+.detail-sec{margin-bottom:16px}
+.detail-sec h3{font-size:0.95rem;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:5px;color:var(--purple)}
+.ing-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px}
+.ing-item{padding:7px 10px;background:var(--purple-soft);border-radius:var(--radius-xs);font-size:0.85rem}
+.step-list{display:flex;flex-direction:column;gap:8px}
+.step-detail{display:flex;gap:10px;align-items:flex-start}
+.step-bullet{width:28px;height:28px;background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.78rem;font-weight:700;flex-shrink:0}
+.step-text{flex:1;padding:10px 12px;background:var(--bg);border-radius:var(--radius-sm);line-height:1.7;font-size:0.88rem}
+.detail-foot{display:flex;gap:8px;padding:14px 20px;border-top:1px solid var(--border)}
+
+/* ═══ ORDERS PAGE ═══ */
+.order-create{padding:20px 22px;background:#fff;border-bottom:1px solid var(--border);flex-shrink:0}
+.order-form{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.order-form label{font-size:0.85rem;font-weight:500;color:var(--text-sub);white-space:nowrap}
+.order-form input[type=date],.order-form select{padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius-xs);font-size:0.88rem;font-family:inherit;background:#fff}
+.order-form input:focus,.order-form select:focus{border-color:var(--purple)}
+.order-recipes{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.order-recipe-tag{display:flex;align-items:center;gap:4px;padding:5px 10px;background:var(--purple-soft);color:var(--purple);border-radius:16px;font-size:0.82rem}
+.order-recipe-tag .rm{width:18px;height:18px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.7rem;display:flex;align-items:center;justify-content:center;border-radius:50%}
+.order-recipe-tag .rm:hover{color:var(--red);background:#FEE2E2}
+.order-history{flex:1;overflow-y:auto;padding:16px 22px}
+.order-card{background:var(--bg-card);border-radius:var(--radius);border:1px solid var(--border);padding:14px 16px;margin-bottom:12px;transition:all 0.25s}
+.order-card:hover{border-color:var(--border-purple);box-shadow:var(--shadow)}
+.order-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.order-date{font-size:1rem;font-weight:600}
+.order-meal{padding:3px 10px;border-radius:12px;font-size:0.78rem;font-weight:500}
+.meal-breakfast{background:#FEF3C7;color:#D97706}
+.meal-lunch{background:#DBEAFE;color:#2563EB}
+.meal-dinner{background:#EDE9FE;color:var(--purple)}
+.order-status{margin-left:auto;padding:3px 10px;border-radius:12px;font-size:0.72rem;font-weight:500}
+.status-active{background:#F0FDF4;color:var(--green)}
+.order-items{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.order-item-tag{padding:4px 10px;background:var(--bg);border-radius:12px;font-size:0.82rem;color:var(--text-sub)}
+.order-actions{display:flex;gap:6px}
+.order-btn{padding:5px 12px;border-radius:12px;font-size:0.78rem;font-weight:500;transition:all 0.2s}
+.order-btn.cancel{background:#FEE2E2;color:var(--red);border:none}
+.order-btn.cancel:hover{background:#FECACA}
+
+/* ═══ DISCOVER PAGE ═══ */
+.discover-wrap{flex:1;overflow-y:auto;padding:20px 22px}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.stat-card{background:var(--bg-card);border-radius:var(--radius);border:1px solid var(--border);padding:16px;text-align:center;transition:all 0.3s}
+.stat-card:hover{border-color:var(--border-purple);box-shadow:var(--shadow)}
+.stat-icon{font-size:1.8rem;margin-bottom:6px}
+.stat-num{font-size:1.5rem;font-weight:700;color:var(--purple)}
+.stat-label{font-size:0.78rem;color:var(--text-muted);margin-top:2px}
+.section-title{font-size:1.05rem;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:6px;color:var(--text)}
+.section-title i{color:var(--purple)}
+.featured-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:24px}
+.featured-card{background:var(--bg-card);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;cursor:pointer;transition:all 0.3s}
+.featured-card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.featured-img{width:100%;padding-top:55%;position:relative;background:linear-gradient(135deg,#F3E8FF,#FCE7F3);overflow:hidden}
+.featured-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.featured-img .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2.2rem;opacity:0.2}
+.featured-body{padding:10px 12px}
+.featured-title{font-size:0.9rem;font-weight:600;margin-bottom:2px}
+.featured-sub{font-size:0.75rem;color:var(--text-muted)}
+
+/* ═══ FRIDGE PAGE ═══ */
+.fridge-header{padding:14px 22px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.fridge-header h2{font-size:1.05rem;font-weight:600}
+.fridge-header .mbtn{margin-left:auto}
+.fridge-list{flex:1;overflow-y:auto;padding:16px 22px}
+.fridge-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg-card);border-radius:var(--radius-sm);border:1px solid var(--border);margin-bottom:8px;transition:all 0.25s}
+.fridge-item:hover{border-color:var(--border-purple)}
+.fridge-item.expiring{border-left:3px solid var(--orange)}
+.fridge-item.expired{border-left:3px solid var(--red);opacity:0.7}
+.fridge-icon{font-size:1.3rem;width:36px;text-align:center}
+.fridge-info{flex:1}
+.fridge-name{font-size:0.92rem;font-weight:500}
+.fridge-detail{font-size:0.78rem;color:var(--text-muted);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap}
+.fridge-detail .expiry-warn{color:var(--orange);font-weight:500}
+.fridge-detail .expiry-over{color:var(--red);font-weight:500}
+.fridge-actions{display:flex;gap:4px}
+.fridge-actions button{width:28px;height:28px;background:none;border:1px solid var(--border);border-radius:var(--radius-xs);color:var(--text-muted);font-size:0.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+.fridge-actions button:hover{border-color:var(--purple);color:var(--purple)}
+.fridge-actions button.del:hover{border-color:var(--red);color:var(--red)}
+
+/* ═══ PROFILE PAGE ═══ */
+.profile-wrap{flex:1;overflow-y:auto;padding:20px 22px}
+.profile-card{background:var(--bg-card);border-radius:var(--radius);border:1px solid var(--border);padding:24px;text-align:center;margin-bottom:20px}
+.profile-avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#FFD1DC,#FFE4B5);border:3px solid var(--purple-light);display:flex;align-items:center;justify-content:center;font-size:2.5rem;margin:0 auto 12px}
+.profile-name{font-size:1.3rem;font-weight:700;margin-bottom:4px}
+.profile-sub{font-size:0.88rem;color:var(--text-sub)}
+.profile-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.pstat{background:var(--bg-card);border-radius:var(--radius-sm);border:1px solid var(--border);padding:14px;text-align:center}
+.pstat-num{font-size:1.3rem;font-weight:700;color:var(--purple)}
+.pstat-label{font-size:0.75rem;color:var(--text-muted);margin-top:2px}
+.achievement-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.achievement{background:var(--bg-card);border-radius:var(--radius-sm);border:1px solid var(--border);padding:14px;text-align:center;transition:all 0.3s}
+.achievement:hover{border-color:var(--border-purple)}
+.achievement.locked{opacity:0.45}
+.achievement .ach-icon{font-size:1.8rem;margin-bottom:6px}
+.achievement .ach-name{font-size:0.85rem;font-weight:600}
+.achievement .ach-desc{font-size:0.72rem;color:var(--text-muted);margin-top:2px}
+
+/* ═══ CATEGORY MODAL ═══ */
+.cat-list{display:flex;flex-direction:column;gap:4px}
+.cat-row{display:flex;align-items:center;gap:8px;padding:9px 10px;background:var(--bg);border-radius:var(--radius-xs);transition:background 0.2s;cursor:grab}
+.cat-row:active{cursor:grabbing}
+.cat-row.dragging{opacity:0.4;background:var(--purple-soft)}
+.cat-row.drag-over{border-top:2px solid var(--purple)}
+.cat-icon{font-size:1.2rem;width:28px;text-align:center}
+.cat-name{flex:1;font-size:0.88rem;font-weight:500}
+.cat-count{font-size:0.75rem;color:var(--text-muted)}
+.cat-actions{display:flex;gap:3px}
+.cat-actions button{width:24px;height:24px;background:none;border:1px solid var(--border);border-radius:5px;color:var(--text-muted);font-size:0.68rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+.cat-actions button:hover{border-color:var(--purple);color:var(--purple)}
+.cat-actions button.del:hover{border-color:var(--red);color:var(--red)}
+
+/* ═══ RECIPE PICKER MODAL ═══ */
+.picker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.picker-card{padding:10px;background:var(--bg);border:2px solid transparent;border-radius:var(--radius-sm);cursor:pointer;text-align:center;transition:all 0.25s}
+.picker-card:hover{border-color:var(--border-purple)}
+.picker-card.selected{border-color:var(--purple);background:var(--purple-soft)}
+.picker-card .pi{font-size:1.6rem;margin-bottom:4px}
+.picker-card .pt{font-size:0.82rem;font-weight:500}
+.picker-card .pc{font-size:0.72rem;color:var(--text-muted)}
+
+/* Toast */
+.toast-box{position:fixed;top:14px;right:14px;z-index:2000;display:flex;flex-direction:column;gap:6px}
+.toast{padding:10px 16px;border-radius:var(--radius-xs);font-size:0.85rem;display:flex;align-items:center;gap:6px;animation:tIn 0.3s;box-shadow:0 4px 16px rgba(0,0,0,0.1)}
+@keyframes tIn{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+.toast.ok{background:#F0FDF4;border:1px solid #BBF7D0;color:#15803D}
+.toast.err{background:#FEF2F2;border:1px solid #FECACA;color:#DC2626}
+.toast.info{background:#EFF6FF;border:1px solid #BFDBFE;color:#2563EB}
+
+/* Confirm */
+.confirm-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);z-index:2000;justify-content:center;align-items:center}
+.confirm-bg.show{display:flex}
+.confirm-box{background:#fff;border-radius:14px;padding:24px;max-width:340px;text-align:center;animation:mIn 0.25s;box-shadow:var(--shadow-lg)}
+.confirm-box .ci{font-size:2.2rem;margin-bottom:10px}
+.confirm-box h3{font-size:1.05rem;margin-bottom:4px}
+.confirm-box p{color:var(--text-sub);font-size:0.85rem;margin-bottom:18px}
+.confirm-btns{display:flex;gap:8px;justify-content:center}
+
+/* ═══ MOBILE ═══ */
+@media(max-width:768px){
+  .header-inner{padding:14px 16px;gap:12px}
+  .avatar{width:44px;height:44px;font-size:1.4rem}
+  .header-name{font-size:1.1rem}
+  .header-sub{font-size:0.75rem}
+  .header-notice{font-size:0.7rem;padding:2px 8px}
+  .header-actions{gap:6px}
+  .btn-add-recipe{padding:6px 12px;font-size:0.78rem}
+  .btn-icon-circle{width:30px;height:30px;font-size:0.85rem}
+
+  .layout{flex-direction:column}
+  .sidebar{width:100%;flex-direction:row;border-right:none;border-bottom:1px solid var(--border-purple);overflow-x:auto;overflow-y:hidden;padding:0;gap:0;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .sidebar::-webkit-scrollbar{display:none}
+  .sidebar-item{white-space:nowrap;padding:10px 14px;font-size:0.82rem;flex-shrink:0;flex-basis:auto;width:auto}
+  .sidebar-item.active{background:transparent}
+  .sidebar-item.active::before{left:25%;right:25%;bottom:0;top:auto;width:auto;height:3px;border-radius:3px 3px 0 0}
+  .sidebar-item .cnt{margin-left:4px;font-size:0.68rem}
+  .sidebar-divider{display:none}
+  .sidebar-manage{white-space:nowrap;padding:10px 14px;font-size:0.82rem;flex-shrink:0;width:auto;flex-basis:auto}
+
+  .grid-wrap{padding:10px}
+  .recipe-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .card-img{padding-top:70%}
+  .card-body{padding:8px}
+  .card-title{font-size:0.85rem}
+  .card-desc{display:none}
+  .card-footer{gap:3px}
+  .card-tag{font-size:0.65rem;padding:1px 5px}
+  .card-time{font-size:0.65rem}
+  .btn-add-cart{width:24px;height:24px;font-size:0.85rem}
+
+  .main-header{padding:10px 12px}
+  .main-title{font-size:0.95rem}
+  .mbtn{padding:5px 10px;font-size:0.75rem}
+
+  .bottom-bar{padding:8px 10px;gap:6px}
+  .bottom-cart{padding:5px 10px;font-size:0.78rem}
+  .bbtn{padding:7px 12px;font-size:0.75rem}
+
+  .navbar{padding:4px 0 8px}
+  .nav-item{font-size:0.65rem}
+  .nav-item .ni{font-size:1.1rem}
+
+  .stats-grid,.profile-stats{grid-template-columns:repeat(2,1fr);gap:8px}
+  .stat-card,.pstat{padding:12px 8px}
+  .stat-num,.pstat-num{font-size:1.2rem}
+
+  .order-form{flex-direction:column;align-items:stretch;gap:8px}
+  .order-form input[type=date],.order-form select{width:100%}
+
+  .discover-wrap,.fridge-list,.profile-wrap{padding:12px}
+  .featured-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .ing-grid{grid-template-columns:repeat(2,1fr)}
+
+  .modal{margin:0 8px;max-width:calc(100vw - 16px)}
+  .modal-body{padding:12px 14px;max-height:55vh}
+  .picker-grid{grid-template-columns:repeat(3,1fr);gap:6px}
+  .achievement-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<div class="header">
+  <div class="header-deco"><div class="circle c1"></div><div class="circle c2"></div></div>
+  <div class="header-inner">
+    <div class="avatar" id="headerAvatar" onclick="openSettings()" style="cursor:pointer" title="点击修改">🐱</div>
+    <div class="header-info">
+      <div class="header-name">杜堡堡小厨房 <span class="level">Lv.2</span></div>
+      <div class="header-sub">共 2 人 · 用心烹饪每一餐 💜</div>
+      <div class="header-notice" id="headerNotice" onclick="openSettings()" style="cursor:pointer" title="点击修改">📢 公告：暂无</div>
+    </div>
+    <div class="header-actions" id="headerActions">
+      <button class="btn-add-recipe" onclick="openRecipeModal()">＋ 添加菜谱</button>
+      <button class="btn-icon-circle" onclick="toggleSearch()">🔍</button>
+    </div>
+  </div>
+
+</div>
+<div class="search-bar" id="searchBar">
+  <div class="search-wrap"><span class="si">🔍</span><input type="text" id="searchInput" placeholder="搜索菜谱名称、食材..." oninput="debounceSearch()"></div>
+</div>
+
+<!-- ═══ PAGE: HOME ═══ -->
+<div class="page active" id="page-home">
+  <div class="layout">
+    <div class="sidebar" id="sidebar"></div>
+    <div class="main">
+      <div class="main-header">
+        <span class="main-title" id="mainTitle">全部菜谱</span>
+        <span class="main-count" id="mainCount"></span>
+        <div class="main-actions"><button class="mbtn outline" onclick="randomPick()">🎲 随机选菜</button></div>
+      </div>
+      <div class="grid-wrap">
+        <div class="recipe-grid" id="recipeGrid"></div>
+        <div class="empty" id="emptyState" style="display:none"><div class="icon">🍽️</div><h3>还没有菜谱~</h3><p>点击「添加菜谱」开始你的美食之旅吧</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-bar">
+    <div class="bottom-cart" id="cartDisplay"><span>🛒</span><span id="cartText">已选 0 道菜</span></div>
+    <div class="bottom-btns">
+      <button class="bbtn random" onclick="randomPick()">🎲 随机选菜</button>
+
+      <button class="bbtn order disabled" id="btnOrder" onclick="openOrderConfirm()">下单</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PAGE: ORDERS ═══ -->
+<div class="page" id="page-orders">
+  <div class="order-create">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <h2 style="font-size:1.05rem;font-weight:600">📋 创建家庭宴席</h2>
+    </div>
+    <div class="order-form">
+      <label>📅 日期</label>
+      <input type="date" id="orderDate">
+      <label>🍽️ 餐次</label>
+      <select id="orderMeal">
+        <option value="breakfast">🌅 早餐</option>
+        <option value="lunch" selected>☀️ 午餐</option>
+        <option value="dinner">🌙 晚餐</option>
+      </select>
+      <button class="btn btn-primary" onclick="openRecipePicker()" style="white-space:nowrap">＋ 选菜</button>
+      <button class="btn btn-green" onclick="submitOrder()" style="white-space:nowrap">✓ 确认下单</button>
+    </div>
+    <div class="order-recipes" id="orderRecipes"></div>
+  </div>
+  <div style="padding:12px 22px;border-bottom:1px solid var(--border);background:#fff;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <h3 style="font-size:1rem;font-weight:600;white-space:nowrap">📜 往期菜单</h3>
+    <div style="display:flex;gap:8px;margin-left:auto;align-items:center;flex-wrap:wrap">
+      <input type="date" id="filterDate" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:var(--radius-xs);font-size:0.82rem;font-family:inherit;background:#fff" onchange="loadOrders()">
+      <select id="filterMeal" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:var(--radius-xs);font-size:0.82rem;font-family:inherit;background:#fff;cursor:pointer" onchange="loadOrders()">
+        <option value="all">全部餐次</option>
+        <option value="breakfast">🌅 早餐</option>
+        <option value="lunch">☀️ 午餐</option>
+        <option value="dinner">🌙 晚餐</option>
+      </select>
+      <button class="mbtn outline" onclick="clearOrderFilter()" style="padding:5px 10px;font-size:0.78rem">重置</button>
+    </div>
+  </div>
+  <div class="order-history" id="orderHistory"></div>
+</div>
+
+<!-- ═══ PAGE: DISCOVER ═══ -->
+<div class="page" id="page-discover">
+  <div class="discover-wrap" id="discoverContent"></div>
+</div>
+
+<!-- ═══ PAGE: FRIDGE ═══ -->
+<div class="page" id="page-fridge">
+  <div class="fridge-header">
+    <h2>🧊 我的冰箱</h2>
+    <button class="mbtn outline" onclick="openFridgeModal()">＋ 添加食材</button>
+  </div>
+  <div class="fridge-list" id="fridgeList"></div>
+</div>
+
+<!-- ═══ PAGE: PROFILE ═══ -->
+<div class="page" id="page-profile">
+  <div class="profile-wrap" id="profileContent"></div>
+</div>
+
+<!-- ═══ BOTTOM NAV ═══ -->
+<div class="navbar">
+  <button class="nav-item active" data-page="home"><span class="ni">👨‍🍳</span>厨房</button>
+  <button class="nav-item" data-page="orders"><span class="ni">📋</span>订单</button>
+  <button class="nav-item" data-page="discover"><span class="ni">🧭</span>发现</button>
+  <button class="nav-item" data-page="fridge"><span class="ni">🧊</span>冰箱</button>
+  <button class="nav-item" data-page="profile"><span class="ni">👤</span>我</button>
+</div>
+
+<!-- ═══ MODALS ═══ -->
+
+<!-- Add/Edit Recipe -->
+<div class="modal-overlay" id="recipeModal">
+  <div class="modal">
+    <div class="modal-head"><h2 id="formTitle">添加菜谱</h2><button class="btn-x" onclick="closeRecipeModal()">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="recipeId">
+      <div class="fg"><label>🏷️ 菜名 *</label><input class="fc" id="fTitle" placeholder="给你的菜取个好名字~"></div>
+      <div class="form-row">
+        <div class="fg"><label>📂 分类</label><select class="fc" id="fCategory"></select></div>
+        <div class="fg"><label>⚡ 难度</label><select class="fc" id="fDifficulty"><option value="简单">🟢 简单</option><option value="中等">🟡 中等</option><option value="困难">🔴 困难</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>⏱️ 烹饪时间</label><input class="fc" id="fTime" placeholder="如：30分钟"></div>
+        <div class="fg"><label>👥 份量</label><input class="fc" id="fServings" placeholder="如：2-3人份"></div>
+      </div>
+      <div class="fg"><label>📝 简介</label><textarea class="fc" id="fDesc" placeholder="简单介绍一下..." rows="2"></textarea></div>
+      <div class="fg"><label>🖼️ 图片</label>
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fImage').click()">
+          <div class="icon">📷</div><p>点击或拖拽上传</p><small>JPG/PNG/GIF/WebP，最大 16MB</small>
+          <input type="file" id="fImage" accept="image/*" onchange="previewImg(this)">
+        </div>
+        <div class="upload-preview" id="uploadPrev"><img id="prevImg"><button class="rm" onclick="rmImage()" type="button">✕</button></div>
+        <div style="display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap">
+          <button class="mbtn outline" type="button" id="btnAiGen" onclick="generateImage()" style="font-size:0.82rem;padding:6px 14px">🎨 AI 生成图片</button>
+          <span id="aiGenStatus" style="font-size:0.78rem;color:var(--text-muted)"></span>
+        </div>
+        <label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:0.82rem;color:var(--text-sub);cursor:pointer">
+          <input type="checkbox" id="autoGenCheck" checked style="accent-color:var(--purple)"> 保存时无图片自动生成
+        </label>
+      </div>
+      <div class="fg"><label>🥕 食材</label><div id="ingList"></div><button class="le-add" type="button" onclick="addIng()">＋ 添加食材</button></div>
+      <div class="fg"><label>👩‍🍳 步骤</label><div id="stepList"></div><button class="le-add" type="button" onclick="addStep()">＋ 添加步骤</button></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeRecipeModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveRecipe()">💾 保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal" style="max-width:620px">
+    <div style="position:relative">
+      <button class="btn-x" onclick="closeDetail()" style="position:absolute;top:10px;right:10px;z-index:2">✕</button>
+      <div id="detailImgArea"></div>
+    </div>
+    <div class="detail-info" id="detailInfo"></div>
+  </div>
+</div>
+
+<!-- Category Manager -->
+<div class="modal-overlay" id="catModal">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-head"><h2>📂 分类管理</h2><button class="btn-x" onclick="closeCatModal()">✕</button></div>
+    <div class="modal-body">
+      <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:10px">💡 拖拽可调整分类顺序</p>
+      <div class="cat-list" id="catList"></div>
+      <button class="le-add" type="button" onclick="addCatPrompt()" style="margin-top:10px">＋ 新增分类</button>
+    </div>
+  </div>
+</div>
+
+<!-- Recipe Picker (for orders) -->
+<div class="modal-overlay" id="pickerModal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-head"><h2>🍽️ 选择菜品</h2><button class="btn-x" onclick="closePicker()">✕</button></div>
+    <div class="modal-body">
+      <div class="picker-grid" id="pickerGrid"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closePicker()">取消</button>
+      <button class="btn btn-primary" onclick="confirmPicker()">✓ 确认</button>
+    </div>
+  </div>
+</div>
+
+<!-- Fridge Item Modal -->
+<div class="modal-overlay" id="fridgeModal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-head"><h2 id="fridgeFormTitle">添加食材</h2><button class="btn-x" onclick="closeFridgeModal()">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="fridgeId">
+      <div class="fg"><label>🥬 名称 *</label><input class="fc" id="frName" placeholder="食材名称"></div>
+      <div class="form-row">
+        <div class="fg"><label>📂 分类</label><select class="fc" id="frCategory"><option value="蔬菜">🥬 蔬菜</option><option value="肉类">🥩 肉类</option><option value="海鲜">🦐 海鲜</option><option value="水果">🍎 水果</option><option value="调料">🧂 调料</option><option value="饮品">🥤 饮品</option><option value="其他" selected>📦 其他</option></select></div>
+        <div class="fg"><label>📦 数量</label><input class="fc" id="frQuantity" placeholder="如：500g"></div>
+      </div>
+      <div class="fg"><label>📅 保质期至</label><input class="fc" type="date" id="frExpiry"></div>
+      <div class="fg"><label>📝 备注</label><input class="fc" id="frNote" placeholder="备注信息"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeFridgeModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveFridge()">💾 保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Order Confirm -->
+<div class="confirm-bg" id="confirmBg">
+  <div class="confirm-box">
+    <div class="ci">⚠️</div>
+    <h3 id="confirmTitle">确认操作</h3>
+    <p id="confirmText"></p>
+    <div class="confirm-btns">
+      <button class="btn btn-ghost" onclick="closeConfirm()">取消</button>
+      <button class="btn btn-danger" id="confirmBtn" onclick="doConfirm()">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- Order Detail Modal -->
+<div class="modal-overlay" id="orderDetailModal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-head"><h2 id="orderDetailTitle">📋 订单详情</h2><button class="btn-x" onclick="closeOrderDetail()">✕</button></div>
+    <div class="modal-body" id="orderDetailBody"></div>
+    <div class="modal-foot" id="orderDetailFoot"></div>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-head"><h2>⚙️ 个性化设置</h2><button class="btn-x" onclick="closeSettings()">✕</button></div>
+    <div class="modal-body">
+      <div class="fg"><label>🐱 头像（输入 emoji）</label><input class="fc" id="setAvatar" placeholder="如：🐱🐶🍳" maxlength="4"></div>
+      <div class="fg"><label>📝 厨房名称</label><input class="fc" id="setName" placeholder="如：杜堡堡小厨房"></div>
+      <div class="fg"><label>👥 成员描述</label><input class="fc" id="setSub" placeholder="如：共 2 人 · 用心烹饪每一餐 💜"></div>
+      <div class="fg"><label>📢 公告内容</label><input class="fc" id="setNotice" placeholder="如：本周六聚餐！"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeSettings()">取消</button>
+      <button class="btn btn-primary" onclick="saveSettings()">💾 保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-box" id="toastBox"></div>
+
+<script>
+// ══════ STATE ══════
+let categories=[], recipes=[], cart=new Set(), currentCat='all', currentPage='home';
+let orderItems=[], pickerSelected=new Set(), searchTimer=null;
+let confirmCb=null, imgRemoved=false;
+
+// ══════ SETTINGS ══════
+function loadSettings(){
+  const s=JSON.parse(localStorage.getItem('kitchen_settings')||'{}');
+  if(s.avatar){document.getElementById('headerAvatar').textContent=s.avatar}
+  if(s.name){document.querySelector('.header-name').innerHTML=esc(s.name)+' <span class="level">Lv.2</span>'}
+  if(s.sub){document.querySelector('.header-sub').textContent=s.sub}
+  if(s.notice){document.getElementById('headerNotice').innerHTML='📢 公告：'+esc(s.notice)}
+}
+function openSettings(){
+  const s=JSON.parse(localStorage.getItem('kitchen_settings')||'{}');
+  document.getElementById('setAvatar').value=s.avatar||'🐱';
+  document.getElementById('setName').value=s.name||'杜堡堡小厨房';
+  document.getElementById('setSub').value=s.sub||'共 2 人 · 用心烹饪每一餐 💜';
+  document.getElementById('setNotice').value=s.notice||'暂无';
+  document.getElementById('settingsModal').classList.add('active');
+}
+function closeSettings(){document.getElementById('settingsModal').classList.remove('active')}
+function saveSettings(){
+  const s={
+    avatar:document.getElementById('setAvatar').value.trim()||'🐱',
+    name:document.getElementById('setName').value.trim()||'杜堡堡小厨房',
+    sub:document.getElementById('setSub').value.trim()||'共 2 人 · 用心烹饪每一餐 💜',
+    notice:document.getElementById('setNotice').value.trim()||'暂无'
+  };
+  localStorage.setItem('kitchen_settings',JSON.stringify(s));
+  loadSettings();closeSettings();toast('设置已保存 ✨','ok');
+}
+
+// ══════ INIT ══════
+async function init(){
+  await loadCategories(); await loadRecipes();
+  document.getElementById('orderDate').value = new Date().toISOString().split('T')[0];
+  setupPageTabs();loadSettings();
+}
+
+// ══════ PAGE NAV ══════
+function setupPageTabs(){
+  document.querySelectorAll('.nav-item').forEach(t=>{
+    t.addEventListener('click',()=>switchPage(t.dataset.page));
+  });
+}
+function switchPage(page){
+  currentPage=page;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page)?.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(t=>t.classList.toggle('active',t.dataset.page===page));
+  if(page==='orders')loadOrders();
+  if(page==='discover')loadDiscover();
+  if(page==='fridge')loadFridge();
+  if(page==='profile')loadProfile();
+  const isHome=page==='home';
+}
+
+// ══════ CATEGORIES ══════
+async function loadCategories(){
+  const r=await fetch('/api/categories'); categories=await r.json();
+  renderSidebar(); renderCatSelect();
+}
+function renderSidebar(){
+  const el=document.getElementById('sidebar');
+  let h=`<button class="sidebar-item ${currentCat==='all'?'active':''}" onclick="setCat('all')"><span>📋</span> 全部 <span class="cnt">${recipes.length}</span></button>`;
+  categories.forEach(c=>{h+=`<button class="sidebar-item ${currentCat===c.id?'active':''}" onclick="setCat('${c.id}')"><span>${c.icon}</span> ${esc(c.name)} <span class="cnt">${c.recipe_count}</span></button>`});
+  h+=`<div class="sidebar-divider"></div><button class="sidebar-manage" onclick="openCatModal()">⚙️ 分类管理</button>`;
+  el.innerHTML=h;
+}
+function renderCatSelect(){document.getElementById('fCategory').innerHTML=categories.map(c=>`<option value="${c.id}">${c.icon} ${esc(c.name)}</option>`).join('')}
+function setCat(id){currentCat=id;loadRecipes()}
+
+// ══════ RECIPES ══════
+async function loadRecipes(){
+  const p=new URLSearchParams();
+  if(currentCat!=='all')p.set('category',currentCat);
+  const q=document.getElementById('searchInput').value.trim();
+  if(q)p.set('search',q);
+  const r=await fetch('/api/recipes?'+p); recipes=await r.json();
+  renderGrid(); renderSidebar();
+  const cat=categories.find(c=>c.id===currentCat);
+  document.getElementById('mainTitle').textContent=cat?cat.name:'全部菜谱';
+  document.getElementById('mainCount').textContent=`${recipes.length} 道菜`;
+}
+function renderGrid(){
+  const el=document.getElementById('recipeGrid'), empty=document.getElementById('emptyState');
+  if(!recipes.length){el.innerHTML='';empty.style.display='block';return}
+  empty.style.display='none';
+  el.innerHTML=recipes.map(r=>{
+    const cat=categories.find(c=>c.id===r.category_id); const inCart=cart.has(r.id);
+    return `<div class="recipe-card" onclick="viewRecipe('${r.id}')">
+      <div class="card-img">${r.image?`<img src="/uploads/${r.image}" loading="lazy" alt="${esc(r.title)}">`:'<div class="ph">🍽️</div>'}
+        ${cat?`<span class="card-badge">${cat.icon} ${esc(cat.name)}</span>`:''}
+        <span class="card-sales">月销 ${r.monthly_sales||0}</span></div>
+      <div class="card-body"><div class="card-title">${esc(r.title)}</div>
+        ${r.description?`<div class="card-desc">${esc(r.description)}</div>`:''}
+        <div class="card-footer">
+          ${r.difficulty?`<span class="card-tag">${r.difficulty==='简单'?'🟢':r.difficulty==='中等'?'🟡':'🔴'} ${r.difficulty}</span>`:''}
+          ${r.cook_time?`<span class="card-time">⏱️ ${esc(r.cook_time)}</span>`:''}
+          <button class="btn-add-cart ${inCart?'in-cart':''}" onclick="event.stopPropagation();toggleCart('${r.id}')">${inCart?'✓':'+'}</button>
+        </div></div></div>`;
+  }).join('');
+}
+
+// ══════ CART ══════
+function toggleCart(id){cart.has(id)?cart.delete(id):cart.add(id);renderGrid();updateOrderBtn()}
+function updateOrderBtn(){
+  document.getElementById('cartText').textContent=`已选 ${cart.size} 道菜`;
+  const btn=document.getElementById('btnOrder');
+  if(cart.size>0){btn.classList.remove('disabled');btn.textContent=`下单 (${cart.size})`}
+  else{btn.classList.add('disabled');btn.textContent='下单'}
+}
+
+// ══════ SEARCH ══════
+function toggleSearch(){document.getElementById('searchBar').classList.toggle('show')}
+function debounceSearch(){clearTimeout(searchTimer);searchTimer=setTimeout(loadRecipes,300)}
+
+// ══════ RECIPE MODAL ══════
+function openRecipeModal(r){
+  document.getElementById('formTitle').textContent=r?'编辑菜谱':'添加菜谱';
+  document.getElementById('recipeId').value=r?r.id:'';
+  document.getElementById('fTitle').value=r?r.title:'';
+  document.getElementById('fCategory').value=r?r.category_id:(categories[0]?.id||'');
+  document.getElementById('fDifficulty').value=r?r.difficulty:'简单';
+  document.getElementById('fTime').value=r?(r.cook_time||''):'';
+  document.getElementById('fServings').value=r?(r.servings||''):'';
+  document.getElementById('fDesc').value=r?(r.description||''):'';
+  document.getElementById('fImage').value=''; imgRemoved=false;
+  if(r&&r.image){document.getElementById('prevImg').src='/uploads/'+r.image;document.getElementById('uploadPrev').style.display='block';document.getElementById('uploadZone').style.display='none'}
+  else{document.getElementById('uploadPrev').style.display='none';document.getElementById('uploadZone').style.display='block'}
+  const ings=r?(r.ingredients||[]):[]; document.getElementById('ingList').innerHTML=ings.length?ings.map((v,i)=>ingHTML(v,i+1)).join(''):''; if(!ings.length)addIng();
+  const steps=r?(r.steps||[]):[]; document.getElementById('stepList').innerHTML=steps.length?steps.map((v,i)=>stepHTML(v,i+1)).join(''):''; if(!steps.length)addStep();
+  document.getElementById('recipeModal').classList.add('active'); document.body.classList.add('modal-open');
+  document.getElementById('fTitle').focus();
+}
+function closeRecipeModal(){document.getElementById('recipeModal').classList.remove('active');document.body.classList.remove('modal-open')}
+function ingHTML(v='',n=1){return`<div class="le-item"><span class="le-num">${n}</span><input class="le-input" value="${esc(v)}" placeholder="食材和用量"><button class="le-rm" onclick="this.closest('.le-item').remove();renum()" type="button">✕</button></div>`}
+function stepHTML(v='',n=1){return`<div class="step-item"><span class="step-num">${n}</span><textarea class="step-ta" placeholder="描述这一步...">${esc(v)}</textarea><button class="le-rm" onclick="this.closest('.step-item').remove();renumStep()" type="button">✕</button></div>`}
+function addIng(){const l=document.getElementById('ingList');l.insertAdjacentHTML('beforeend',ingHTML('',l.children.length+1));l.lastElementChild.querySelector('input').focus()}
+function addStep(){const l=document.getElementById('stepList');l.insertAdjacentHTML('beforeend',stepHTML('',l.children.length+1));l.lastElementChild.querySelector('textarea').focus()}
+function renum(){document.querySelectorAll('#ingList .le-num').forEach((e,i)=>e.textContent=i+1)}
+function renumStep(){document.querySelectorAll('#stepList .step-num').forEach((e,i)=>e.textContent=i+1)}
+function previewImg(inp){if(inp.files&&inp.files[0]){const rd=new FileReader();rd.onload=e=>{document.getElementById('prevImg').src=e.target.result;document.getElementById('uploadPrev').style.display='block';document.getElementById('uploadZone').style.display='none';imgRemoved=false};rd.readAsDataURL(inp.files[0])}}
+function rmImage(){document.getElementById('fImage').value='';document.getElementById('uploadPrev').style.display='none';document.getElementById('uploadZone').style.display='block';imgRemoved=true}
+
+// AI Image Generation
+async function generateImage(){
+  const title=document.getElementById('fTitle').value.trim();
+  if(!title){toast('先填菜名才能生成哦~','info');return}
+  const ings=[];document.querySelectorAll('#ingList .le-input').forEach(i=>{const v=i.value.trim();if(v)ings.push(v)});
+  const btn=document.getElementById('btnAiGen');
+  const status=document.getElementById('aiGenStatus');
+  btn.disabled=true;btn.style.opacity='0.6';btn.textContent='⏳ 生成中...';
+  status.textContent='AI 正在绘制菜品图片，请稍候...';
+  status.style.color='var(--purple)';
+  try{
+    const r=await fetch('/api/generate-image',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({title,ingredients:ings})});
+    const d=await r.json();
+    if(r.ok){
+      document.getElementById('prevImg').src=d.url;
+      document.getElementById('uploadPrev').style.display='block';
+      document.getElementById('uploadZone').style.display='none';
+      imgRemoved=false;
+      // Store the generated filename for saving
+      window._aiGeneratedFile=d.filename;
+      status.textContent='✅ 图片生成成功！';status.style.color='var(--green)';
+      toast('AI 图片生成成功 🎨','ok');
+      // Store filename in a hidden field for saving
+      let hf=document.getElementById('fAiFilename');
+      if(!hf){hf=document.createElement('input');hf.type='hidden';hf.id='fAiFilename';document.getElementById('recipeForm')?.appendChild(hf)||document.body.appendChild(hf)}
+      hf.value=d.filename;
+    }else{
+      status.textContent='❌ '+d.error;status.style.color='var(--red)';
+      toast(d.error||'生成失败','err');
+    }
+  }catch(e){
+    status.textContent='❌ 网络错误';status.style.color='var(--red)';
+    toast('网络错误，请重试','err');
+  }
+  btn.disabled=false;btn.style.opacity='1';btn.textContent='🎨 AI 生成图片';
+}
+const uz=document.getElementById('uploadZone');
+uz.addEventListener('dragover',e=>{e.preventDefault();uz.classList.add('dragover')});
+uz.addEventListener('dragleave',()=>uz.classList.remove('dragover'));
+uz.addEventListener('drop',e=>{e.preventDefault();uz.classList.remove('dragover');if(e.dataTransfer.files.length){document.getElementById('fImage').files=e.dataTransfer.files;previewImg(document.getElementById('fImage'))}});
+
+async function saveRecipe(){
+  const title=document.getElementById('fTitle').value.trim();
+  if(!title){toast('菜名不能为空~','err');return}
+  const id=document.getElementById('recipeId').value;
+  const fd=new FormData();
+  fd.append('title',title);fd.append('category_id',document.getElementById('fCategory').value);
+  fd.append('difficulty',document.getElementById('fDifficulty').value);
+  fd.append('cook_time',document.getElementById('fTime').value);fd.append('servings',document.getElementById('fServings').value);
+  fd.append('description',document.getElementById('fDesc').value);
+  const ings=[];document.querySelectorAll('#ingList .le-input').forEach(i=>{const v=i.value.trim();if(v)ings.push(v)});fd.append('ingredients',JSON.stringify(ings));
+  const steps=[];document.querySelectorAll('#stepList .step-ta').forEach(t=>{const v=t.value.trim();if(v)steps.push(v)});fd.append('steps',JSON.stringify(steps));
+  const fi=document.getElementById('fImage');if(fi.files.length)fd.append('image',fi.files[0]);
+  if(imgRemoved&&id)fd.append('remove_image','true');
+  // Pass AI-generated filename if available
+  const aiFn=document.getElementById('fAiFilename');
+  if(aiFn&&aiFn.value&&!fi.files.length)fd.append('ai_image',aiFn.value);
+  // Auto-generate flag
+  const hasImage=fi.files.length>0||document.getElementById('uploadPrev').style.display==='block'&&(aiFn&&aiFn.value);
+  const autoGen=document.getElementById('autoGenCheck').checked&&!hasImage&&!fi.files.length;
+  if(autoGen)fd.append('auto_generate','true');
+  const r=await fetch(id?'/api/recipes/'+id:'/api/recipes',{method:id?'PUT':'POST',body:fd});
+  const d=await r.json();if(!r.ok){toast(d.error||'保存失败','err');return}
+  const msg=autoGen?'添加成功 🎨 AI 正在生成图片...':(id?'更新成功 ✨':'添加成功 🎉');
+  toast(msg,autoGen?'info':'ok');closeRecipeModal();loadRecipes();
+  // If auto-generating, poll for image
+  if(autoGen){setTimeout(()=>loadRecipes(),8000);setTimeout(()=>loadRecipes(),20000)}
+}
+
+// ══════ DETAIL ══════
+function viewRecipe(id){
+  const r=recipes.find(x=>x.id===id);if(!r)return;
+  document.getElementById('detailImgArea').innerHTML=r.image?`<img class="detail-img" src="/uploads/${r.image}">`:'<div class="detail-ph">🍽️</div>';
+  const cat=categories.find(c=>c.id===r.category_id);
+  const dc=r.difficulty==='简单'?'diff-easy':r.difficulty==='中等'?'diff-mid':'diff-hard';
+  let h=`<div class="detail-title">${esc(r.title)}</div>
+    <div class="detail-meta">
+      ${cat?`<span class="dmeta">${cat.icon} ${esc(cat.name)}</span>`:''}
+      <span class="dmeta ${dc}">${r.difficulty==='简单'?'🟢':r.difficulty==='中等'?'🟡':'🔴'} ${r.difficulty}</span>
+      ${r.cook_time?`<span class="dmeta time">⏱️ ${esc(r.cook_time)}</span>`:''}
+      ${r.servings?`<span class="dmeta">👥 ${esc(r.servings)}</span>`:''}
+    </div>`;
+  if(r.description)h+=`<div class="detail-desc">${esc(r.description)}</div>`;
+  if(r.ingredients.length)h+=`<div class="detail-sec"><h3>🥕 食材清单</h3><div class="ing-grid">${r.ingredients.map(i=>`<div class="ing-item">${esc(i)}</div>`).join('')}</div></div>`;
+  if(r.steps.length)h+=`<div class="detail-sec"><h3>👩‍🍳 烹饪步骤</h3><div class="step-list">${r.steps.map((s,i)=>`<div class="step-detail"><div class="step-bullet">${i+1}</div><div class="step-text">${esc(s)}</div></div>`).join('')}</div></div>`;
+  h+=`<div class="detail-foot">
+    <button class="btn btn-ghost" style="flex:1" onclick="closeDetail()">← 返回</button>
+    <button class="btn btn-primary" style="flex:1" onclick="closeDetail();editRecipe('${r.id}')">✏️ 编辑</button>
+    <button class="btn btn-danger" onclick="askDeleteRecipe('${r.id}','${esc(r.title)}')">🗑️ 删除</button>
+  </div>`;
+  document.getElementById('detailInfo').innerHTML=h;
+  document.getElementById('detailModal').classList.add('active');document.body.classList.add('modal-open');
+}
+function closeDetail(){document.getElementById('detailModal').classList.remove('active');document.body.classList.remove('modal-open')}
+function editRecipe(id){const r=recipes.find(x=>x.id===id);if(r)openRecipeModal(r)}
+function askDeleteRecipe(id,name){
+  showConfirm('确认删除','确定要删除「'+name+'」吗？此操作不可撤销。',async()=>{
+    const r=await fetch('/api/recipes/'+id,{method:'DELETE'});
+    if(r.ok){toast('已删除','ok');cart.delete(id);loadRecipes();updateOrderBtn()}else toast('删除失败','err');
+  });
+}
+
+// ══════ ORDERS ══════
+async function loadOrders(){
+  const dateF=document.getElementById('filterDate').value;
+  const mealF=document.getElementById('filterMeal').value;
+  const p=new URLSearchParams();
+  if(dateF)p.set('date',dateF);
+  if(mealF&&mealF!=='all')p.set('meal_type',mealF);
+  const r=await fetch('/api/orders?'+p); const orders=await r.json();
+  allOrdersCache=orders;
+  const el=document.getElementById('orderHistory');
+  if(!orders.length){
+    const hint=dateF||mealF!=='all'?'没有找到匹配的订单':'创建你的第一顿饭吧~';
+    el.innerHTML=`<div class="empty" style="padding:40px"><div class="icon">📋</div><h3>暂无订单</h3><p>${hint}</p></div>`;return}
+  const mealLabels={breakfast:'🌅 早餐',lunch:'☀️ 午餐',dinner:'🌙 晚餐'};
+  const mealClass={breakfast:'meal-breakfast',lunch:'meal-lunch',dinner:'meal-dinner'};
+  el.innerHTML=orders.map(o=>`
+    <div class="order-card" onclick="viewOrderDetail('${o.id}')" style="cursor:pointer">
+      <div class="order-header">
+        <span class="order-date">📅 ${o.order_date}</span>
+        <span class="order-meal ${mealClass[o.meal_type]||''}">${mealLabels[o.meal_type]||o.meal_type}</span>
+        <span class="order-status status-active">${o.status==='active'?'✅ 已下单':'已完成'}</span>
+      </div>
+      <div class="order-items">${o.items.map(i=>`<span class="order-item-tag">🍽️ ${esc(i.recipe_title)}</span>`).join('')}${o.items.length===0?'<span class="order-item-tag" style="opacity:0.5">无菜品</span>':''}</div>
+      <div style="display:flex;align-items:center;margin-top:6px">
+        <span style="font-size:0.75rem;color:var(--text-muted)">共 ${o.items.length} 道菜 · 点击查看详情</span>
+        <span style="margin-left:auto;font-size:0.72rem;color:var(--text-muted)">${(o.created_at||'').slice(11,16)}</span>
+      </div>
+    </div>
+  `).join('');
+}
+function clearOrderFilter(){
+  document.getElementById('filterDate').value='';
+  document.getElementById('filterMeal').value='all';
+  loadOrders();
+}
+
+// Store all orders for detail view
+let allOrdersCache=[];
+async function loadAllOrders(){
+  const r=await fetch('/api/orders'); allOrdersCache=await r.json();
+}
+function viewOrderDetail(id){
+  // Find from cache or re-fetch
+  const o=allOrdersCache.find(x=>x.id===id);
+  if(!o){loadAllOrders().then(()=>viewOrderDetail(id));return}
+  const mealLabels={breakfast:'🌅 早餐',lunch:'☀️ 午餐',dinner:'🌙 晚餐'};
+  const mealClass={breakfast:'meal-breakfast',lunch:'meal-lunch',dinner:'meal-dinner'};
+  document.getElementById('orderDetailTitle').textContent=`📋 ${o.order_date} ${mealLabels[o.meal_type]||''}`;
+  let body=`<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+    <span class="dmeta">📅 ${o.order_date}</span>
+    <span class="dmeta" style="background:${o.meal_type==='breakfast'?'#FEF3C7':o.meal_type==='lunch'?'#DBEAFE':'#EDE9FE'};color:${o.meal_type==='breakfast'?'#D97706':o.meal_type==='lunch'?'#2563EB':'#7C3AED'}">${mealLabels[o.meal_type]||o.meal_type}</span>
+    <span class="dmeta" style="background:#F0FDF4;color:#16A34A">${o.status==='active'?'✅ 已下单':'已完成'}</span>
+  </div>`;
+  if(o.items.length){
+    body+=`<div class="detail-sec"><h3>🍽️ 点了这些菜</h3><div style="display:flex;flex-direction:column;gap:8px">`;
+    o.items.forEach((item,idx)=>{
+      const recipe=recipes.find(r=>r.id===item.recipe_id);
+      body+=`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border-radius:var(--radius-xs);border:1px solid var(--border)">
+        <span style="width:28px;height:28px;background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.82rem;font-weight:700;flex-shrink:0">${idx+1}</span>
+        <div style="flex:1">
+          <div style="font-weight:600;font-size:0.92rem">${esc(item.recipe_title)}</div>
+          ${recipe?`<div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px">${recipe.difficulty} · ${esc(recipe.cook_time||'')} · ${esc(recipe.servings||'')}</div>`:''}
+        </div>
+        ${recipe?`<button class="btn btn-ghost" style="padding:4px 10px;font-size:0.75rem" onclick="event.stopPropagation();closeOrderDetail();switchPage('home');setTimeout(()=>viewRecipe('${recipe.id}'),200)">查看</button>`:''}
+      </div>`;
+    });
+    body+=`</div></div>`;
+  }else{
+    body+=`<div style="text-align:center;padding:20px;color:var(--text-muted)">暂无菜品</div>`;
+  }
+  if(o.created_at){
+    body+=`<div style="margin-top:12px;font-size:0.78rem;color:var(--text-muted)">下单时间：${o.created_at.replace('T',' ').slice(0,19)}</div>`;
+  }
+  document.getElementById('orderDetailBody').innerHTML=body;
+  document.getElementById('orderDetailFoot').innerHTML=`
+    <button class="btn btn-ghost" onclick="closeOrderDetail()">关闭</button>
+    <button class="btn btn-danger" onclick="closeOrderDetail();cancelOrder('${o.id}')">🗑️ 取消订单</button>`;
+  document.getElementById('orderDetailModal').classList.add('active');
+  document.body.classList.add('modal-open');
+}
+function closeOrderDetail(){document.getElementById('orderDetailModal').classList.remove('active');document.body.classList.remove('modal-open')}
+function openRecipePicker(){
+  pickerSelected=new Set();
+  const el=document.getElementById('pickerGrid');
+  el.innerHTML=recipes.map(r=>{
+    const cat=categories.find(c=>c.id===r.category_id);
+    return `<div class="picker-card" data-id="${r.id}" onclick="togglePicker('${r.id}',this)">
+      <div class="pi">${cat?cat.icon:'🍽️'}</div><div class="pt">${esc(r.title)}</div>
+      <div class="pc">${r.difficulty} · ${esc(r.cook_time||'')}</div></div>`;
+  }).join('');
+  document.getElementById('pickerModal').classList.add('active');
+}
+function togglePicker(id,el){pickerSelected.has(id)?pickerSelected.delete(id):pickerSelected.add(id);el.classList.toggle('selected')}
+function closePicker(){document.getElementById('pickerModal').classList.remove('active')}
+function confirmPicker(){
+  orderItems=[];
+  pickerSelected.forEach(id=>{const r=recipes.find(x=>x.id===id);if(r)orderItems.push({recipe_id:r.id,recipe_title:r.title})});
+  renderOrderRecipes();closePicker();
+}
+function renderOrderRecipes(){
+  const el=document.getElementById('orderRecipes');
+  el.innerHTML=orderItems.map((item,i)=>`<span class="order-recipe-tag">🍽️ ${esc(item.recipe_title)} <button class="rm" onclick="orderItems.splice(${i},1);renderOrderRecipes()">✕</button></span>`).join('');
+}
+async function submitOrder(){
+  if(!orderItems.length){toast('请先选菜~','info');return}
+  const r=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({order_date:document.getElementById('orderDate').value,meal_type:document.getElementById('orderMeal').value,items:orderItems})});
+  const d=await r.json();
+  if(r.ok){toast('下单成功 🎉','ok');orderItems=[];renderOrderRecipes();cart.clear();updateOrderBtn();renderGrid();loadOrders()}
+  else toast(d.error||'下单失败','err');
+}
+function openOrderConfirm(){
+  if(!cart.size)return;
+  orderItems=[];
+  cart.forEach(id=>{const r=recipes.find(x=>x.id===id);if(r)orderItems.push({recipe_id:r.id,recipe_title:r.title})});
+  switchPage('orders');renderOrderRecipes();
+}
+async function cancelOrder(oid){
+  showConfirm('取消订单','确定要取消这个订单吗？',async()=>{
+    const r=await fetch('/api/orders/'+oid,{method:'DELETE'});
+    if(r.ok){toast('已取消','ok');loadOrders()}else toast('操作失败','err');
+  });
+}
+
+// ══════ DISCOVER ══════
+async function loadDiscover(){
+  const r=await fetch('/api/discover'); const d=await r.json();
+  const s=d.stats;
+  let h=`<div class="stats-grid">
+    <div class="stat-card"><div class="stat-icon">🍳</div><div class="stat-num">${s.total_recipes}</div><div class="stat-label">菜谱总数</div></div>
+    <div class="stat-card"><div class="stat-icon">📂</div><div class="stat-num">${s.total_categories}</div><div class="stat-label">分类数</div></div>
+    <div class="stat-card"><div class="stat-icon">📋</div><div class="stat-num">${s.total_orders}</div><div class="stat-label">历史订单</div></div>
+    <div class="stat-card"><div class="stat-icon">🧊</div><div class="stat-num">${s.total_fridge}</div><div class="stat-label">冰箱食材</div></div>
+  </div>`;
+  if(d.top_recipes.length){
+    h+=`<div class="section-title">🏆 人气菜谱</div><div class="featured-grid">`;
+    d.top_recipes.forEach(r=>{const cat=categories.find(c=>c.id===r.category_id);
+      h+=`<div class="featured-card" onclick="switchPage('home');setTimeout(()=>viewRecipe('${r.id}'),200)">
+        <div class="featured-img">${r.image?`<img src="/uploads/${r.image}">`:'<div class="ph">🍽️</div>'}</div>
+        <div class="featured-body"><div class="featured-title">${cat?cat.icon:''} ${esc(r.title)}</div><div class="featured-sub">月销 ${r.monthly_sales||0} · ${r.difficulty}</div></div></div>`});
+    h+=`</div>`;
+  }
+  if(d.recent_recipes.length){
+    h+=`<div class="section-title">🆕 最新添加</div><div class="featured-grid">`;
+    d.recent_recipes.forEach(r=>{const cat=categories.find(c=>c.id===r.category_id);
+      h+=`<div class="featured-card" onclick="switchPage('home');setTimeout(()=>viewRecipe('${r.id}'),200)">
+        <div class="featured-img">${r.image?`<img src="/uploads/${r.image}">`:'<div class="ph">🍽️</div>'}</div>
+        <div class="featured-body"><div class="featured-title">${cat?cat.icon:''} ${esc(r.title)}</div><div class="featured-sub">${r.difficulty} · ${esc(r.cook_time||'')}</div></div></div>`});
+    h+=`</div>`;
+  }
+  document.getElementById('discoverContent').innerHTML=h;
+}
+
+// ══════ FRIDGE ══════
+async function loadFridge(){
+  const r=await fetch('/api/fridge'); const items=await r.json();
+  const el=document.getElementById('fridgeList');
+  if(!items.length){el.innerHTML='<div class="empty" style="padding:40px"><div class="icon">🧊</div><h3>冰箱是空的</h3><p>添加一些食材来管理你的库存吧~</p></div>';return}
+  const today=new Date();today.setHours(0,0,0,0);
+  const catIcons={蔬菜:'🥬',肉类:'🥩',海鲜:'🦐',水果:'🍎',调料:'🧂',饮品:'🥤',其他:'📦'};
+  el.innerHTML=items.map(f=>{
+    let cls='';let expiryHtml='';
+    if(f.expiry_date){
+      const exp=new Date(f.expiry_date);const diff=Math.ceil((exp-today)/(1000*60*60*24));
+      if(diff<0){cls='expired';expiryHtml=`<span class="expiry-over">已过期 ${-diff} 天</span>`}
+      else if(diff<=3){cls='expiring';expiryHtml=`<span class="expiry-warn">还有 ${diff} 天过期</span>`}
+      else expiryHtml=`<span>保质期至 ${f.expiry_date}</span>`;
+    }
+    return `<div class="fridge-item ${cls}">
+      <span class="fridge-icon">${catIcons[f.category]||'📦'}</span>
+      <div class="fridge-info"><div class="fridge-name">${esc(f.name)}</div>
+        <div class="fridge-detail">${f.quantity?`<span>${esc(f.quantity)}</span>`:''} ${expiryHtml} ${f.note?`<span>${esc(f.note)}</span>`:''}</div></div>
+      <div class="fridge-actions">
+        <button onclick="editFridgeItem(${JSON.stringify(f).replace(/"/g,'&quot;')})">✏️</button>
+        <button class="del" onclick="deleteFridgeItem('${f.id}')">🗑️</button>
+      </div></div>`;
+  }).join('');
+}
+function openFridgeModal(item){
+  document.getElementById('fridgeFormTitle').textContent=item?'编辑食材':'添加食材';
+  document.getElementById('fridgeId').value=item?item.id:'';
+  document.getElementById('frName').value=item?item.name:'';
+  document.getElementById('frCategory').value=item?item.category:'其他';
+  document.getElementById('frQuantity').value=item?(item.quantity||''):'';
+  document.getElementById('frExpiry').value=item?(item.expiry_date||''):'';
+  document.getElementById('frNote').value=item?(item.note||''):'';
+  document.getElementById('fridgeModal').classList.add('active');
+}
+function closeFridgeModal(){document.getElementById('fridgeModal').classList.remove('active')}
+function editFridgeItem(item){openFridgeModal(item)}
+async function saveFridge(){
+  const name=document.getElementById('frName').value.trim();
+  if(!name){toast('名称不能为空','err');return}
+  const id=document.getElementById('fridgeId').value;
+  const data={name,category:document.getElementById('frCategory').value,quantity:document.getElementById('frQuantity').value,expiry_date:document.getElementById('frExpiry').value,note:document.getElementById('frNote').value};
+  const r=await fetch(id?'/api/fridge/'+id:'/api/fridge',{method:id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+  if(r.ok){toast(id?'已更新':'已添加','ok');closeFridgeModal();loadFridge()}else toast('操作失败','err');
+}
+async function deleteFridgeItem(id){
+  showConfirm('删除食材','确定要删除这个食材吗？',async()=>{
+    const r=await fetch('/api/fridge/'+id,{method:'DELETE'});
+    if(r.ok){toast('已删除','ok');loadFridge()}else toast('删除失败','err');
+  });
+}
+
+// ══════ PROFILE ══════
+async function loadProfile(){
+  const r=await fetch('/api/discover'); const d=await r.json(); const s=d.stats;
+  let h=`<div class="profile-card">
+    <div class="profile-avatar">🐱</div>
+    <div class="profile-name">杜堡堡</div>
+    <div class="profile-sub">Lv.2 · 用心烹饪每一餐 💜</div></div>
+  <div class="profile-stats">
+    <div class="pstat"><div class="pstat-num">${s.total_recipes}</div><div class="pstat-label">菜谱</div></div>
+    <div class="pstat"><div class="pstat-num">${s.total_orders}</div><div class="pstat-label">订单</div></div>
+    <div class="pstat"><div class="pstat-num">${s.total_categories}</div><div class="pstat-label">分类</div></div>
+    <div class="pstat"><div class="pstat-num">${s.total_fridge}</div><div class="pstat-label">食材</div></div>
+  </div>
+  <div class="section-title">🏅 成就</div>
+  <div class="achievement-grid">
+    <div class="achievement ${s.total_recipes>=1?'':'locked'}"><div class="ach-icon">🌟</div><div class="ach-name">初出茅庐</div><div class="ach-desc">添加第1道菜谱</div></div>
+    <div class="achievement ${s.total_recipes>=5?'':'locked'}"><div class="ach-icon">🔥</div><div class="ach-name">小试牛刀</div><div class="ach-desc">累计5道菜谱</div></div>
+    <div class="achievement ${s.total_recipes>=10?'':'locked'}"><div class="ach-icon">👨‍🍳</div><div class="ach-name">厨艺达人</div><div class="ach-desc">累计10道菜谱</div></div>
+    <div class="achievement ${s.total_orders>=1?'':'locked'}"><div class="ach-icon">📋</div><div class="ach-name">首次下单</div><div class="ach-desc">创建第1个订单</div></div>
+    <div class="achievement ${s.total_orders>=10?'':'locked'}"><div class="ach-icon">🎉</div><div class="ach-name">宴会达人</div><div class="ach-desc">累计10个订单</div></div>
+    <div class="achievement ${s.total_fridge>=5?'':'locked'}"><div class="ach-icon">🧊</div><div class="ach-name">冰箱管家</div><div class="ach-desc">冰箱有5种食材</div></div>
+  </div>`;
+  document.getElementById('profileContent').innerHTML=h;
+}
+
+// ══════ CATEGORIES (DRAG) ══════
+function openCatModal(){renderCatList();document.getElementById('catModal').classList.add('active');document.body.classList.add('modal-open')}
+function closeCatModal(){document.getElementById('catModal').classList.remove('active');document.body.classList.remove('modal-open')}
+function renderCatList(){
+  const el=document.getElementById('catList');
+  el.innerHTML=categories.map(c=>`
+    <div class="cat-row" draggable="true" data-id="${c.id}">
+      <span class="cat-icon">${c.icon}</span><span class="cat-name">${esc(c.name)}</span>
+      <span class="cat-count">${c.recipe_count}道</span>
+      <div class="cat-actions">
+        <button onclick="editCatPrompt('${c.id}','${esc(c.name)}','${c.icon}')">✏️</button>
+        <button class="del" onclick="delCatPrompt('${c.id}','${esc(c.name)}')">🗑️</button>
+      </div></div>`).join('');
+  setupDrag();
+}
+function setupDrag(){
+  const list=document.getElementById('catList'); let dragEl=null;
+  list.querySelectorAll('.cat-row').forEach(row=>{
+    row.addEventListener('dragstart',e=>{dragEl=row;row.classList.add('dragging');e.dataTransfer.effectAllowed='move'});
+    row.addEventListener('dragend',()=>{dragEl?.classList.remove('dragging');list.querySelectorAll('.cat-row').forEach(r=>r.classList.remove('drag-over'));saveCatOrder()});
+    row.addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect='move';list.querySelectorAll('.cat-row').forEach(r=>r.classList.remove('drag-over'));row.classList.add('drag-over')});
+    row.addEventListener('drop',e=>{e.preventDefault();if(dragEl&&dragEl!==row){const all=[...list.children];const from=all.indexOf(dragEl);const to=all.indexOf(row);if(from<to)list.insertBefore(dragEl,row.nextSibling);else list.insertBefore(dragEl,row)}});
+  });
+}
+async function saveCatOrder(){
+  const ids=[...document.getElementById('catList').querySelectorAll('.cat-row')].map(r=>r.dataset.id);
+  await fetch('/api/categories/reorder',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({order:ids})});
+  await loadCategories(); toast('排序已更新','ok');
+}
+async function addCatPrompt(){
+  const name=prompt('分类名称：');if(!name)return;
+  const icon=prompt('分类图标（emoji）：','🍽️')||'🍽️';
+  await fetch('/api/categories',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,icon})});
+  toast('已添加','ok');await loadCategories();renderCatList();
+}
+async function editCatPrompt(id,name,icon){
+  const n=prompt('分类名称：',name);if(!n)return;
+  const i=prompt('分类图标：',icon)||icon;
+  await fetch('/api/categories/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n,icon:i})});
+  toast('已更新','ok');await loadCategories();renderCatList();
+}
+async function delCatPrompt(id,name){
+  if(!confirm(`确定删除「${name}」？`))return;
+  await fetch('/api/categories/'+id,{method:'DELETE'});
+  toast('已删除','ok');if(currentCat===id)currentCat='all';
+  await loadCategories();loadRecipes();renderCatList();
+}
+
+// ══════ RANDOM ══════
+async function randomPick(){
+  const p=currentCat!=='all'?`?category=${currentCat}`:'';
+  const r=await fetch('/api/random'+p);const d=await r.json();
+  if(!r.ok){toast(d.error||'还没有菜谱~','info');return}viewRecipe(d.id);
+}
+
+// ══════ CONFIRM ══════
+function showConfirm(title,text,cb){
+  document.getElementById('confirmTitle').textContent=title;
+  document.getElementById('confirmText').textContent=text;
+  confirmCb=cb;document.getElementById('confirmBg').classList.add('show');
+}
+function closeConfirm(){document.getElementById('confirmBg').classList.remove('show');confirmCb=null}
+function doConfirm(){if(confirmCb)confirmCb();closeConfirm()}
+
+// ══════ TOAST ══════
+function toast(msg,type='info'){
+  const icons={ok:'✅',err:'❌',info:'ℹ️'};
+  const t=document.createElement('div');t.className='toast '+type;
+  t.innerHTML=`${icons[type]||''} ${msg}`;document.getElementById('toastBox').appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(24px)';t.style.transition='all 0.3s';setTimeout(()=>t.remove(),300)},2500);
+}
+
+// ══════ UTIL ══════
+function esc(s){if(!s)return '';const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',function(e){if(e.target===this){this.classList.remove('active');document.body.classList.remove('modal-open')}}));
+document.getElementById('confirmBg').addEventListener('click',function(e){if(e.target===this)closeConfirm()});
+document.getElementById('orderDetailModal').addEventListener('click',function(e){if(e.target===this)closeOrderDetail()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){
+  if(document.getElementById('confirmBg').classList.contains('show'))closeConfirm();
+  else{const m=document.querySelector('.modal-overlay.active');if(m){m.classList.remove('active');document.body.classList.remove('modal-open')}}}});
+
+init();
+</script>
+</body>
+</html>
